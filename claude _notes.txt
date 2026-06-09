@@ -1,0 +1,48 @@
+claude work
+┌────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────┐
+│        File        │                                            Change                                             │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/db.php         │ Added email_verified column + migration guard + verify_tokens table                           │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/auth.php       │ New — handles signup, login, logout, me, resend, verify                                       │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/grid.php       │ PHP session start, auth modal overlay (login/signup tabs), user+logout in toolbar, toast      │
+│                    │ notifications                                                                                 │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ docker-compose.yml │ Added MailHog service + APP_URL env var                                                       │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ php/Dockerfile     │ Installs msmtp, writes /etc/msmtprc pointing to MailHog, sets PHP sendmail_path               │
+└────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Flow:
+1. User opens grid.php → auth modal blocks the UI until logged in
+2. Sign Up → email sent via MailHog → user clicks verify link → auto-logged in, redirected back with "Email verified — welcome!" toast
+3. Login → requires verified email; if not verified, a "Resend verification email" link appears
+4. Logout → session destroyed, modal reappears
+
+┌────────────────┬─────────────────────────────────────────────────────────────────────────────────────────┐
+│      File      │                                         Purpose                                         │
+├────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/jwt.php    │ HS256 JWT encode/decode, httpOnly cookie helpers                                        │
+├────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/login.php  │ Standalone login page — fetches auth.php?action=login, redirects to grid.php on success │
+├────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/signup.php │ Standalone signup page — fetches auth.php?action=signup, shows "check email" on success │
+├────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ www/logout.php │ Clears the JWT cookie, redirects to login.php                                           │
+└────────────────┴─────────────────────────────────────────────────────────────────────────────────────────┘
+
+Modified files:
+
+
+- www/auth.php — removed PHP sessions entirely; login/verify now call jwtSetCookie(), logout calls jwtClearCookie(); verify errors redirect to login.php?error=...
+- www/grid.php — replaced the session modal with a 4-line PHP JWT gate at the top; username is PHP-rendered server-side; logout is a plain <a href="logout.php"> link; all auth JS removed
+- docker-compose.yml — added JWT_SECRET env var
+
+Flow:
+1. Go to grid.php → redirected to login.php if no valid JWT cookie
+2. Login → JWT set as httpOnly SameSite=Strict cookie → redirect to grid.php
+3. Sign up → check email → click verify link → JWT set → redirect to grid.php?verified=1 → toast shown
+4. Logout link → logout.php clears cookie → login.php
+
+Rebuild the container to pick up the Dockerfile changes: docker-compose up --build.

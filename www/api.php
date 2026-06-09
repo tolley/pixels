@@ -43,8 +43,7 @@ try {
         }
 
         $stmt = $pdo->prepare(
-            'INSERT INTO pixels (x, y, color) VALUES (:x, :y, :color)
-             ON DUPLICATE KEY UPDATE color = VALUES(color)'
+            'INSERT IGNORE INTO pixels (x, y, color) VALUES (:x, :y, :color)'
         );
 
         $saved = 0;
@@ -58,7 +57,7 @@ try {
             if ($x === null || $y === null || $color === null) continue;
 
             $stmt->execute([':x' => $x, ':y' => $y, ':color' => $color]);
-            $saved++;
+            if ($stmt->rowCount()) $saved++;
         }
         $pdo->commit();
 

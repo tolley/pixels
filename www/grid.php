@@ -1,3 +1,12 @@
+<?php
+require_once 'jwt.php';
+$user = jwtFromRequest();
+if (!$user) {
+    header('Location: login.php');
+    exit;
+}
+$verified = isset($_GET['verified']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -199,9 +208,51 @@
             cursor: pointer;
             width: 100%;
         }
+
+        /* ── user info ── */
+        #user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        #user-info span { font-size: 0.8rem; opacity: 0.6; }
+        #user-info a {
+            color: #eee;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        #user-info a:hover { background: rgba(255,255,255,0.18); }
+
+        /* ── toast ── */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1982c4;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        #toast.show { opacity: 1; }
     </style>
 </head>
 <body>
+
+<div id="toast"><?= $verified ? 'Email verified — welcome!' : '' ?></div>
 
 <div id="toolbar">
     <h1>Pixel Playground</h1>
@@ -215,6 +266,11 @@
 
     <div class="toolbar-actions">
         <button id="btn-reset">Reset</button>
+    </div>
+
+    <div id="user-info">
+        <span><?= htmlspecialchars($user['username']) ?></span>
+        <a href="logout.php">Logout</a>
     </div>
 </div>
 
@@ -289,23 +345,22 @@
         '#c9ada7','#9a8c98','#4a4e69','#22223b','#f2e9e4',
     ];
 
-    let colors        = {};   // in-memory cache: "x,y" → hex
+    let colors        = {};
     let selectedColor = PALETTE[0];
 
-    const canvas      = document.getElementById('canvas');
-    const ctx         = canvas.getContext('2d');
-    const activeEl    = document.getElementById('active-color');
-    const pickerEl    = document.getElementById('color-picker');
-    const swatchesEl  = document.getElementById('swatches');
-    const coordsEl    = document.getElementById('coords');
-    const vpDisplay   = document.getElementById('vp-display');
-    const stepSelect  = document.getElementById('step-select');
+    const canvas       = document.getElementById('canvas');
+    const ctx          = canvas.getContext('2d');
+    const activeEl     = document.getElementById('active-color');
+    const pickerEl     = document.getElementById('color-picker');
+    const swatchesEl   = document.getElementById('swatches');
+    const coordsEl     = document.getElementById('coords');
+    const vpDisplay    = document.getElementById('vp-display');
+    const stepSelect   = document.getElementById('step-select');
     const zoomControls = document.getElementById('zoom-controls');
     let selectedSwatch = null;
     let hoverC = -1, hoverR = -1;
     let rafPending = false;
 
-    // ── recalculate viewport from canvas size + zoom ──
     function recalc() {
         vpCols = Math.max(1, Math.floor(canvas.width  / step));
         vpRows = Math.max(1, Math.floor(canvas.height / step));
@@ -314,7 +369,6 @@
         vpDisplay.textContent = `${vpCols} × ${vpRows}`;
     }
 
-    // ── resize canvas buffer to match its CSS size, then recalc ──
     function resizeCanvas() {
         canvas.width  = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
@@ -324,7 +378,6 @@
 
     new ResizeObserver(resizeCanvas).observe(canvas);
 
-    // ── palette ──
     PALETTE.forEach(hex => {
         const s = document.createElement('div');
         s.className = 'swatch';
@@ -347,7 +400,6 @@
 
     selectColor(PALETTE[0], swatchesEl.firstElementChild);
 
-    // ── render ──
     function render() {
         ctx.fillStyle = GAP_COLOR;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -373,7 +425,6 @@
         requestAnimationFrame(render);
     }
 
-    // ── API helpers ──
     let fetchTimer = null;
     function scheduleViewportFetch() {
         clearTimeout(fetchTimer);
@@ -416,7 +467,6 @@
         }
     }
 
-    // ── canvas cell from mouse event ──
     function canvasCell(e) {
         const rect = canvas.getBoundingClientRect();
         const c = Math.floor((e.clientX - rect.left) * (canvas.width  / rect.width)  / step);
@@ -424,7 +474,6 @@
         return { c, r, col: viewX + c, row: viewY + r };
     }
 
-    // ── hover highlight ──
     canvas.addEventListener('mousemove', e => {
         const { c, r, col, row } = canvasCell(e);
         if (c === hoverC && r === hoverR) return;
@@ -439,7 +488,6 @@
         scheduleRender();
     });
 
-    // ── click to paint ──
     canvas.addEventListener('click', e => {
         const { col, row } = canvasCell(e);
         if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
@@ -448,7 +496,6 @@
         apiSet([{ x: col, y: row, color: selectedColor }]);
     });
 
-    // ── navigation ──
     function getStep() { return parseInt(stepSelect.value, 10); }
 
     function navigate(dx, dy) {
@@ -475,7 +522,6 @@
         }
     });
 
-    // ── zoom ──
     function applyZoom(z) {
         cellPx = z;
         step   = cellPx + GAP;
@@ -491,14 +537,21 @@
         if (btn) applyZoom(parseInt(btn.dataset.px));
     });
 
-    // ── toolbar buttons ──
     document.getElementById('btn-reset').addEventListener('click', () => {
         colors = {};
-        apiDelete();   // clear all pixels on server
+        apiDelete();
         render();
     });
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    // Show toast if redirected here after email verification
+    const toastEl = document.getElementById('toast');
+    if (toastEl.textContent) {
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), 4000);
+        history.replaceState(null, '', location.pathname);
+    }
 </script>
 </body>
 </html>

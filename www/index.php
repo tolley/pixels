@@ -4,7 +4,7 @@ $db   = getenv('MYSQL_DATABASE') ?: 'appdb';
 $user = getenv('MYSQL_USER') ?: 'appuser';
 $pass = getenv('MYSQL_PASSWORD') ?: 'secret';
 
-echo '<h1>PHP ' . phpversion() . '</h1>';
+phpinfo();
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);

@@ -17,6 +17,14 @@ services:
       MYSQL_PASSWORD: secret
       APP_URL: http://localhost:8080
       JWT_SECRET: dev-secret-change-in-production
+      # Google OAuth — create credentials at console.cloud.google.com
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+      # Apple Sign In — configure at developer.apple.com/account/resources/authkeys
+      APPLE_CLIENT_ID: ""      # Services ID, e.g. com.example.pixelplayground.signin
+      APPLE_TEAM_ID: ""        # 10-char Team ID from Apple Developer account
+      APPLE_KEY_ID: ""         # Key ID of the Sign In with Apple key
+      APPLE_PRIVATE_KEY: ""    # base64-encoded contents of the .p8 private key file
 
   db:
     image: mysql:5.7

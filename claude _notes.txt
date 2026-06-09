@@ -45,4 +45,30 @@ Flow:
 3. Sign up → check email → click verify link → JWT set → redirect to grid.php?verified=1 → toast shown
 4. Logout link → logout.php clears cookie → login.php
 
+
+//////////////////////////////////////////////////////////////////
+////////////////////// Social logins /////////////////////////////
+//////////////////////////////////////////////////////////////////
 Rebuild the container to pick up the Dockerfile changes: docker-compose up --build.
+
+Files changed:
+- db.php — auto-migrates users table: password becomes nullable, adds oauth_provider + oauth_subject columns with a unique index
+- login.php / signup.php — show Google/Apple buttons when the env vars are set
+- docker-compose.yml — placeholder vars with setup instructions
+- oauth.php (new) — shared: stateless HMAC state (CSRF-safe without sessions), oauthFindOrCreateUser, username generation
+- oauth_google.php (new) — Google OAuth start + callback
+- oauth_apple.php (new) — Apple Sign In start + POST callback (includes ES256 JWT signing for Apple's client secret)
+
+---
+To activate Google:
+1. Go to console.cloud.google.com → Credentials → Create OAuth 2.0 Client ID
+2. Add http://localhost:8080/oauth_google.php?action=callback as an authorized redirect URI
+3. Fill in GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in docker-compose.yml
+
+To activate Apple:
+1. In Apple Developer → Certificates, Identifiers & Profiles: create a Services ID (your APPLE_CLIENT_ID) and a Sign In with Apple key
+2. Add http://localhost:8080/oauth_apple.php as a return URL
+3. Download the .p8 key file and base64-encode it: base64 -w 0 AuthKey_XXXXXX.p8
+4. Fill in all four APPLE_* vars in docker-compose.yml
+
+Account linking: If a user signs in via Google/Apple with an email that already exists from email/password signup, the OAuth identity is automatically linked to that account — no duplicate users.

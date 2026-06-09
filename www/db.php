@@ -18,18 +18,31 @@ function getDb(): PDO {
         id             INT UNSIGNED  NOT NULL AUTO_INCREMENT,
         username       VARCHAR(64)   NOT NULL,
         email          VARCHAR(255)  NOT NULL,
-        password       VARCHAR(255)  NOT NULL,
+        password       VARCHAR(255)  NULL,
         email_verified TINYINT(1)    NOT NULL DEFAULT 0,
+        oauth_provider VARCHAR(32)   NULL,
+        oauth_subject  VARCHAR(255)  NULL,
         created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         UNIQUE KEY uq_username (username),
-        UNIQUE KEY uq_email    (email)
+        UNIQUE KEY uq_email    (email),
+        UNIQUE KEY uq_oauth    (oauth_provider, oauth_subject)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
     // Migrate existing tables that predate the email_verified column.
     $col = $pdo->query("SHOW COLUMNS FROM users LIKE 'email_verified'")->rowCount();
     if ($col === 0) {
         $pdo->exec("ALTER TABLE users ADD COLUMN email_verified TINYINT(1) NOT NULL DEFAULT 0");
+    }
+
+    // Migrate existing tables that predate the OAuth columns.
+    $col = $pdo->query("SHOW COLUMNS FROM users LIKE 'oauth_provider'")->rowCount();
+    if ($col === 0) {
+        $pdo->exec("ALTER TABLE users
+            MODIFY COLUMN password VARCHAR(255) NULL,
+            ADD COLUMN oauth_provider VARCHAR(32)  NULL,
+            ADD COLUMN oauth_subject  VARCHAR(255) NULL");
+        $pdo->exec("ALTER TABLE users ADD UNIQUE KEY uq_oauth (oauth_provider, oauth_subject)");
     }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS verify_tokens (

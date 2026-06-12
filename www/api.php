@@ -32,7 +32,7 @@ try {
         echo json_encode(['pixels' => $stmt->fetchAll()]);
 
     // ── POST  {pixels:[{x,y,color},...]} ─────────────────────────────────────
-    // Upserts one or more pixels.
+    // Upserts a collection of pixels in a single statement.
     } elseif ($method === 'POST') {
         $body   = json_decode(file_get_contents('php://input'), true);
         $pixels = $body['pixels'] ?? [];
@@ -42,26 +42,30 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare(
-            'INSERT IGNORE INTO pixels (x, y, color) VALUES (:x, :y, :color)'
-        );
-
-        $saved = 0;
-        $pdo->beginTransaction();
+        $valid = [];
         foreach ($pixels as $p) {
-            $x     = isset($p['x']) ? (int)$p['x'] : null;
-            $y     = isset($p['y']) ? (int)$p['y'] : null;
+            $x     = isset($p['x'])     ? (int)$p['x']     : null;
+            $y     = isset($p['y'])     ? (int)$p['y']     : null;
             $color = isset($p['color']) && preg_match('/^#[0-9a-fA-F]{6}$/', $p['color'])
                      ? $p['color'] : null;
-
             if ($x === null || $y === null || $color === null) continue;
-
-            $stmt->execute([':x' => $x, ':y' => $y, ':color' => $color]);
-            if ($stmt->rowCount()) $saved++;
+            $valid[] = [$x, $y, $color];
         }
-        $pdo->commit();
 
-        echo json_encode(['ok' => true, 'count' => $saved]);
+        if (empty($valid)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'No valid pixels in request']);
+            exit;
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($valid), '(?, ?, ?)'));
+        $stmt = $pdo->prepare(
+            "INSERT INTO pixels (x, y, color) VALUES $placeholders
+             ON DUPLICATE KEY UPDATE color = VALUES(color)"
+        );
+        $stmt->execute(array_merge(...$valid));
+
+        echo json_encode(['ok' => true, 'count' => count($valid)]);
 
     // ── DELETE  (no body = clear all; ?x1=&y1=&x2=&y2= = clear region) ──────
     } elseif ($method === 'DELETE') {
@@ -88,5 +92,5 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
 }

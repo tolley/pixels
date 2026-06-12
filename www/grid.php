@@ -30,7 +30,8 @@ $verified = isset($_GET['verified']);
     <div id="swatches"></div>
 
     <div class="toolbar-actions">
-        <button type="button" id="btn-reset">Reset</button>
+        <button type="button" id="btn-submit" disabled>Submit</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
     </div>
 
     <div id="user-info">
@@ -109,6 +110,7 @@ $verified = isset($_GET['verified']);
     ];
 
     let colors        = {};
+    let pending       = {};
     let selectedColor = PALETTE[0];
 
     const canvas       = document.getElementById('canvas');
@@ -163,6 +165,16 @@ $verified = isset($_GET['verified']);
 
     selectColor(PALETTE[0], swatchesEl.firstElementChild);
 
+    const submitBtn = document.getElementById('btn-submit');
+    const resetBtn  = document.getElementById('btn-reset');
+
+    function updateButtons() {
+        const n = Object.keys(pending).length;
+        submitBtn.disabled    = n === 0;
+        submitBtn.textContent = n > 0 ? `Submit (${n})` : 'Submit';
+        resetBtn.disabled     = n === 0;
+    }
+
     function render() {
         ctx.fillStyle = GAP_COLOR;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -171,6 +183,17 @@ $verified = isset($_GET['verified']);
             for (let c = 0; c < vpCols; c++) {
                 ctx.fillStyle = colors[`${viewX + c},${viewY + r}`] ?? DEFAULT_COLOR;
                 ctx.fillRect(c * step, r * step, cellPx, cellPx);
+            }
+        }
+
+        // mark unsaved pixels with a small white dot
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        const dot = Math.max(2, Math.floor(cellPx / 4));
+        for (const key of Object.keys(pending)) {
+            const [px, py] = key.split(',');
+            const sc = px - viewX, sr = py - viewY;
+            if (sc >= 0 && sc < vpCols && sr >= 0 && sr < vpRows) {
+                ctx.fillRect(sc * step, sr * step, dot, dot);
             }
         }
 
@@ -217,15 +240,14 @@ $verified = isset($_GET['verified']);
     }
 
     async function apiSet(pixels) {
-        try {
-            await fetch('api.php', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ pixels }),
-            });
-        } catch (err) {
-            console.error('apiSet failed', err);
-        }
+        const res  = await fetch('api.php', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ pixels }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error ?? 'Save failed');
+        return data;
     }
 
     async function apiDelete(region) {
@@ -263,9 +285,11 @@ $verified = isset($_GET['verified']);
     canvas.addEventListener('click', e => {
         const { col, row } = canvasCell(e);
         if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
-        colors[`${col},${row}`] = selectedColor;
+        const key = `${col},${row}`;
+        colors[key]  = selectedColor;
+        pending[key] = selectedColor;
+        updateButtons();
         render();
-        apiSet([{ x: col, y: row, color: selectedColor }]);
     });
 
     function getStep() { return parseInt(stepSelect.value, 10); }
@@ -308,10 +332,33 @@ $verified = isset($_GET['verified']);
     document.getElementById('btn-zoom-out').addEventListener('click', () => applyZoom(cellPx - 2));
     document.getElementById('btn-zoom-in').addEventListener('click',  () => applyZoom(cellPx + 2));
 
-    document.getElementById('btn-reset').addEventListener('click', () => {
-        colors = {};
-        apiDelete();
+    submitBtn.addEventListener('click', async () => {
+        if (!Object.keys(pending).length) return;
+        const pixels = Object.entries(pending).map(([key, color]) => {
+            const [x, y] = key.split(',').map(Number);
+            return { x, y, color };
+        });
+        submitBtn.disabled    = true;
+        submitBtn.textContent = 'Saving…';
+        try {
+            await apiSet(pixels);
+            pending = {};
+            updateButtons();
+            render();
+        } catch (err) {
+            console.error('submit failed', err);
+            submitBtn.disabled    = false;
+            submitBtn.textContent = 'Save failed — retry';
+            setTimeout(() => updateButtons(), 3000);
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        for (const key of Object.keys(pending)) delete colors[key];
+        pending = {};
+        updateButtons();
         render();
+        scheduleViewportFetch();
     });
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }

@@ -381,18 +381,20 @@ button:hover { background: rgba(255,255,255,0.18); }
 
 #zoom-controls {
     display: flex;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
 }
 
-.zoom-btn {
+#zoom-controls button {
     flex: 1;
     padding: 4px 0;
-    font-size: 0.75rem;
+    font-size: 1rem;
+    line-height: 1;
 }
 
-.zoom-btn.active {
-    background: #1982c4;
-    border-color: #1982c4;
+#zoom-display {
+    flex: 1;
+    text-align: center;
 }
 
 #nav-pad {

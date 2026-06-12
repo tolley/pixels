@@ -48,11 +48,9 @@ $verified = isset($_GET['verified']);
         <div class="panel-section">
             <span class="panel-label">Zoom</span>
             <div id="zoom-controls">
-                <button type="button" class="zoom-btn" data-px="2">2</button>
-                <button type="button" class="zoom-btn active" data-px="4">4</button>
-                <button type="button" class="zoom-btn" data-px="8">8</button>
-                <button type="button" class="zoom-btn" data-px="12">12</button>
-                <button type="button" class="zoom-btn" data-px="16">16</button>
+                <button type="button" id="btn-zoom-out">−</button>
+                <span class="panel-value" id="zoom-display">4 px</span>
+                <button type="button" id="btn-zoom-in">+</button>
             </div>
         </div>
 
@@ -121,7 +119,7 @@ $verified = isset($_GET['verified']);
     const coordsEl     = document.getElementById('coords');
     const vpDisplay    = document.getElementById('vp-display');
     const stepSelect   = document.getElementById('step-select');
-    const zoomControls = document.getElementById('zoom-controls');
+    const zoomDisplay  = document.getElementById('zoom-display');
     let selectedSwatch = null;
     let hoverC = -1, hoverR = -1;
     let rafPending = false;
@@ -296,20 +294,19 @@ $verified = isset($_GET['verified']);
         }
     });
 
+    const MIN_ZOOM = 1;
+    const MAX_ZOOM = 32;
+
     function applyZoom(z) {
-        cellPx = z;
+        cellPx = clamp(z, MIN_ZOOM, MAX_ZOOM);
         step   = cellPx + GAP;
-        zoomControls.querySelectorAll('.zoom-btn').forEach(btn => {
-            btn.classList.toggle('active', parseInt(btn.dataset.px) === cellPx);
-        });
+        zoomDisplay.textContent = cellPx + ' px';
         recalc();
         scheduleViewportFetch();
     }
 
-    zoomControls.addEventListener('click', e => {
-        const btn = e.target.closest('.zoom-btn');
-        if (btn) applyZoom(parseInt(btn.dataset.px));
-    });
+    document.getElementById('btn-zoom-out').addEventListener('click', () => applyZoom(cellPx - 2));
+    document.getElementById('btn-zoom-in').addEventListener('click',  () => applyZoom(cellPx + 2));
 
     document.getElementById('btn-reset').addEventListener('click', () => {
         colors = {};

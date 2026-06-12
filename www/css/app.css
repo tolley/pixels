@@ -319,6 +319,10 @@ body.home .divider { margin: 4px 0; }
 
 .toolbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
+@media (max-width: 640px) {
+    #swatches { display: none; }
+}
+
 .toolbar-actions button:disabled { opacity: 0.35; cursor: default; }
 
 #btn-submit:not(:disabled) {

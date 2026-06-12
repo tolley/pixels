@@ -74,9 +74,10 @@ $verified = isset($_GET['verified']);
             <span class="panel-label">Step size</span>
             <select id="step-select">
                 <option value="1">1 cell</option>
+                <option value="5">5 cells</option>
                 <option value="10" selected>10 cells</option>
+                <option value="25">25 cells</option>
                 <option value="50">50 cells</option>
-                <option value="100">100 cells</option>
             </select>
         </div>
 
@@ -142,15 +143,6 @@ $verified = isset($_GET['verified']);
     }
 
     new ResizeObserver(resizeCanvas).observe(canvas);
-
-    PALETTE.forEach(hex => {
-        const s = document.createElement('div');
-        s.className = 'swatch';
-        s.style.background = hex;
-        s.title = hex;
-        s.addEventListener('click', () => selectColor(hex, s));
-        swatchesEl.appendChild(s);
-    });
 
     pickerEl.addEventListener('input', () => selectColor(pickerEl.value, null));
 

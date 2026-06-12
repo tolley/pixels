@@ -336,6 +336,7 @@ button:hover { background: rgba(255,255,255,0.18); }
     display: flex;
     flex: 1;
     min-height: 0;
+    position: relative;
 }
 
 /* ── canvas ── */
@@ -449,6 +450,43 @@ select {
     transition: background 0.15s;
 }
 #user-info a:hover { background: rgba(255,255,255,0.18); }
+
+/* ── grid loading indicator ── */
+#grid-loading {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(22,33,62,0.85);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 6px 14px 6px 10px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+}
+#grid-loading.show { opacity: 1; }
+
+#grid-loading::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #1982c4;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
 /* ── toast ── */
 #toast {

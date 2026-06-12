@@ -19,7 +19,7 @@ services:
       JWT_SECRET: dev-secret-change-in-production
       # Google OAuth — create credentials at console.cloud.google.com
       GOOGLE_CLIENT_ID: "631487616394-p0u9u8fqn0rc3rugdg98u00crrpqndpo.apps.googleusercontent.com"
-      GOOGLE_CLIENT_SECRET: "asd"
+      GOOGLE_CLIENT_SECRET: ""
       # Apple Sign In — configure at developer.apple.com/account/resources/authkeys
       APPLE_CLIENT_ID: ""      # Services ID, e.g. com.example.pixelplayground.signin
       APPLE_TEAM_ID: ""        # 10-char Team ID from Apple Developer account

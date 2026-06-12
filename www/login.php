@@ -17,8 +17,8 @@ $errorMap = [
 $initError  = $errorMap[$_GET['error'] ?? ''] ?? '';
 $showResend = isset($_GET['error']) && in_array($_GET['error'], ['expired', 'invalid_token']);
 
-$hasGoogle = (bool)(getenv('GOOGLE_CLIENT_ID') && getenv('GOOGLE_CLIENT_SECRET'));
-$hasApple  = (bool)(getenv('APPLE_CLIENT_ID') && getenv('APPLE_TEAM_ID') && getenv('APPLE_KEY_ID') && getenv('APPLE_PRIVATE_KEY'));
+$hasGoogle = array_key_exists( 'GOOGLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['GOOGLE_CLIENT_ID'] ) > 0;
+$hasApple = array_key_exists( 'APPLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['APPLE_CLIENT_ID'] ) > 0;
 $hasSocial = $hasGoogle || $hasApple;
 
 ?>

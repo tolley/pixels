@@ -30,7 +30,7 @@ $verified = isset($_GET['verified']);
     <div id="swatches"></div>
 
     <div class="toolbar-actions">
-        <button id="btn-reset">Reset</button>
+        <button type="button" id="btn-reset">Reset</button>
     </div>
 
     <div id="user-info">
@@ -40,6 +40,7 @@ $verified = isset($_GET['verified']);
 </div>
 
 <div id="workspace">
+    <div id="grid-loading">Loading…</div>
     <canvas id="canvas"></canvas>
 
     <div id="side">
@@ -47,11 +48,11 @@ $verified = isset($_GET['verified']);
         <div class="panel-section">
             <span class="panel-label">Zoom</span>
             <div id="zoom-controls">
-                <button class="zoom-btn" data-px="2">2</button>
-                <button class="zoom-btn active" data-px="4">4</button>
-                <button class="zoom-btn" data-px="8">8</button>
-                <button class="zoom-btn" data-px="12">12</button>
-                <button class="zoom-btn" data-px="16">16</button>
+                <button type="button" class="zoom-btn" data-px="2">2</button>
+                <button type="button" class="zoom-btn active" data-px="4">4</button>
+                <button type="button" class="zoom-btn" data-px="8">8</button>
+                <button type="button" class="zoom-btn" data-px="12">12</button>
+                <button type="button" class="zoom-btn" data-px="16">16</button>
             </div>
         </div>
 
@@ -63,10 +64,10 @@ $verified = isset($_GET['verified']);
         <div class="panel-section">
             <span class="panel-label">Navigate</span>
             <div id="nav-pad">
-                <button id="btn-nav-up">▲</button>
-                <button id="btn-nav-left">◀</button>
-                <button id="btn-nav-right">▶</button>
-                <button id="btn-nav-down">▼</button>
+                <button type="button" id="btn-nav-up">▲</button>
+                <button type="button" id="btn-nav-left">◀</button>
+                <button type="button" id="btn-nav-right">▶</button>
+                <button type="button" id="btn-nav-down">▼</button>
             </div>
         </div>
 
@@ -76,8 +77,7 @@ $verified = isset($_GET['verified']);
                 <option value="1">1 cell</option>
                 <option value="10" selected>10 cells</option>
                 <option value="50">50 cells</option>
-                <option value="1000">1,000 cells</option>
-                <option value="10000">10,000 cells</option>
+                <option value="100">100 cells</option>
             </select>
         </div>
 
@@ -196,9 +196,14 @@ $verified = isset($_GET['verified']);
         fetchTimer = setTimeout(fetchViewport, 150);
     }
 
+    const gridLoadingEl = document.getElementById('grid-loading');
+
     async function fetchViewport() {
+        gridLoadingEl.classList.add('show');
+
         const x1 = viewX, y1 = viewY;
         const x2 = viewX + vpCols - 1, y2 = viewY + vpRows - 1;
+        
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
             const data = await res.json();
@@ -206,6 +211,10 @@ $verified = isset($_GET['verified']);
             render();
         } catch (err) {
             console.error('fetchViewport failed', err);
+        } finally {
+            setTimeout( () => {
+                gridLoadingEl.classList.remove('show');
+            }, 100 );
         }
     }
 

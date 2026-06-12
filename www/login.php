@@ -20,6 +20,7 @@ $showResend = isset($_GET['error']) && in_array($_GET['error'], ['expired', 'inv
 $hasGoogle = (bool)(getenv('GOOGLE_CLIENT_ID') && getenv('GOOGLE_CLIENT_SECRET'));
 $hasApple  = (bool)(getenv('APPLE_CLIENT_ID') && getenv('APPLE_TEAM_ID') && getenv('APPLE_KEY_ID') && getenv('APPLE_PRIVATE_KEY'));
 $hasSocial = $hasGoogle || $hasApple;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

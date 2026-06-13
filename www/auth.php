@@ -105,7 +105,7 @@ function doLogin(PDO $pdo): void {
         return;
     }
 
-    $stmt = $pdo->prepare('SELECT id, username, password, email_verified FROM users WHERE email = ?');
+    $stmt = $pdo->prepare('SELECT id, username, password, email_verified, is_admin FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -120,7 +120,7 @@ function doLogin(PDO $pdo): void {
         return;
     }
 
-    jwtSetCookie((int)$user['id'], $user['username']);
+    jwtSetCookie((int)$user['id'], $user['username'], (bool)$user['is_admin']);
     echo json_encode(['ok' => true]);
 }
 
@@ -174,7 +174,7 @@ function doVerify(): void {
     try {
         $pdo  = getDb();
         $stmt = $pdo->prepare(
-            'SELECT vt.user_id, u.username
+            'SELECT vt.user_id, u.username, u.is_admin
                FROM verify_tokens vt
                JOIN users u ON u.id = vt.user_id
               WHERE vt.token = ? AND vt.expires_at > NOW()'
@@ -192,7 +192,7 @@ function doVerify(): void {
         $pdo->prepare('DELETE FROM verify_tokens WHERE token = ?')
             ->execute([$token]);
 
-        jwtSetCookie((int)$row['user_id'], $row['username']);
+        jwtSetCookie((int)$row['user_id'], $row['username'], (bool)($row['is_admin'] ?? false));
         header('Location: grid.php?verified=1');
 
     } catch (Exception $e) {

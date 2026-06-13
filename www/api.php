@@ -9,13 +9,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'jwt.php';
 
 try {
     $pdo    = getDb();
     $method = $_SERVER['REQUEST_METHOD'];
 
     // ── GET ?x1=&y1=&x2=&y2= ─────────────────────────────────────────────────
-    // Returns all stored pixels within the bounding box [x1,x2] × [y1,y2].
     if ($method === 'GET') {
         $x1 = max(0, (int)($_GET['x1'] ?? 0));
         $y1 = max(0, (int)($_GET['y1'] ?? 0));
@@ -32,8 +32,15 @@ try {
         echo json_encode(['pixels' => $stmt->fetchAll()]);
 
     // ── POST  {pixels:[{x,y,color},...]} ─────────────────────────────────────
-    // Upserts a collection of pixels in a single statement.
+    // color=null means erase. All writes go into pending_pixels for admin review.
     } elseif ($method === 'POST') {
+        $authUser = jwtFromRequest();
+        if (!$authUser) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Not authenticated']);
+            exit;
+        }
+
         $body   = json_decode(file_get_contents('php://input'), true);
         $pixels = $body['pixels'] ?? [];
 
@@ -42,14 +49,23 @@ try {
             exit;
         }
 
-        $valid = [];
+        $batchId = bin2hex(random_bytes(16));
+        $valid   = [];
         foreach ($pixels as $p) {
-            $x     = isset($p['x'])     ? (int)$p['x']     : null;
-            $y     = isset($p['y'])     ? (int)$p['y']     : null;
-            $color = isset($p['color']) && preg_match('/^#[0-9a-fA-F]{6}$/', $p['color'])
-                     ? $p['color'] : null;
-            if ($x === null || $y === null || $color === null) continue;
-            $valid[] = [$x, $y, $color];
+            $x = isset($p['x']) ? (int)$p['x'] : null;
+            $y = isset($p['y']) ? (int)$p['y'] : null;
+            if ($x === null || $y === null) continue;
+
+            $color = null;
+            if (!array_key_exists('color', $p) || $p['color'] === null) {
+                $color = null; // erase
+            } elseif (preg_match('/^#[0-9a-fA-F]{6}$/', $p['color'])) {
+                $color = $p['color'];
+            } else {
+                continue; // invalid color string
+            }
+
+            $valid[] = [$batchId, $x, $y, $color, (int)$authUser['sub'], $authUser['username']];
         }
 
         if (empty($valid)) {
@@ -58,27 +74,31 @@ try {
             exit;
         }
 
-        $placeholders = implode(', ', array_fill(0, count($valid), '(?, ?, ?)'));
-        $stmt = $pdo->prepare(
-            "INSERT INTO pixels (x, y, color) VALUES $placeholders
-             ON DUPLICATE KEY UPDATE color = VALUES(color)"
-        );
-        $stmt->execute(array_merge(...$valid));
+        $placeholders = implode(', ', array_fill(0, count($valid), '(?, ?, ?, ?, ?, ?)'));
+        $pdo->prepare(
+            "INSERT INTO pending_pixels (batch_id, x, y, color, user_id, username) VALUES $placeholders"
+        )->execute(array_merge(...$valid));
 
         echo json_encode(['ok' => true, 'count' => count($valid)]);
 
-    // ── DELETE  (no body = clear all; ?x1=&y1=&x2=&y2= = clear region) ──────
+    // ── DELETE  admin-only utility (no body = clear all; ?x1=…&y2=… = region) ─
     } elseif ($method === 'DELETE') {
+        $authUser = jwtFromRequest();
+        if (!$authUser || empty($authUser['is_admin'])) {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'error' => 'Forbidden']);
+            exit;
+        }
+
         if (isset($_GET['x1'])) {
             $x1 = max(0, (int)$_GET['x1']);
             $y1 = max(0, (int)$_GET['y1']);
             $x2 = max($x1, (int)$_GET['x2']);
             $y2 = max($y1, (int)$_GET['y2']);
 
-            $stmt = $pdo->prepare(
+            $pdo->prepare(
                 'DELETE FROM pixels WHERE x BETWEEN :x1 AND :x2 AND y BETWEEN :y1 AND :y2'
-            );
-            $stmt->execute([':x1' => $x1, ':x2' => $x2, ':y1' => $y1, ':y2' => $y2]);
+            )->execute([':x1' => $x1, ':x2' => $x2, ':y1' => $y1, ':y2' => $y2]);
         } else {
             $pdo->exec('DELETE FROM pixels');
         }

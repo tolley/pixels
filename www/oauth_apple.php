@@ -80,7 +80,7 @@ if (!$email) {
         header('Location: /login.php?error=oauth_failed');
         exit;
     }
-    jwtSetCookie($user['id'], $user['username']);
+    jwtSetCookie($user['id'], $user['username'], (bool)($user['is_admin'] ?? false));
     header('Location: /grid.php');
     exit;
 }
@@ -100,7 +100,7 @@ if (!$user) {
     exit;
 }
 
-jwtSetCookie($user['id'], $user['username']);
+jwtSetCookie($user['id'], $user['username'], (bool)($user['is_admin'] ?? false));
 header('Location: /grid.php');
 exit;
 

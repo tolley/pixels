@@ -66,6 +66,6 @@ if (!$user) {
     exit;
 }
 
-jwtSetCookie($user['id'], $user['username']);
+jwtSetCookie($user['id'], $user['username'], (bool)($user['is_admin'] ?? false));
 header('Location: /grid.php');
 exit;

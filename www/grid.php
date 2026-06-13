@@ -39,6 +39,9 @@ $verified = isset($_GET['verified']);
     <div id="user-info">
         <span><?= htmlspecialchars($user['username']) ?></span>
         <a href="/image.php" alt="See the GIF version of this grid." target="_blank">GIF</a>
+        <?php if (!empty($user['is_admin'])): ?>
+        <a href="review.php">Review</a>
+        <?php endif; ?>
         <a href="logout.php">Logout</a>
     </div>
 </div>
@@ -113,9 +116,8 @@ $verified = isset($_GET['verified']);
 
     const ERASE = '__erase__';
 
-    let colors        = {};
-    let serverColors  = {};
-    let pending       = {};
+    let colors  = {};
+    let pending = {};
     let selectedColor = PALETTE[0];
 
     const canvas       = document.getElementById('canvas');
@@ -234,11 +236,7 @@ $verified = isset($_GET['verified']);
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
             const data = await res.json();
-            data.pixels.forEach(p => {
-                const k = `${p.x},${p.y}`;
-                colors[k]       = p.color;
-                serverColors[k] = p.color;
-            });
+            data.pixels.forEach(p => { colors[`${p.x},${p.y}`] = p.color; });
             render();
         } catch (err) {
             console.error('fetchViewport failed', err);
@@ -349,27 +347,17 @@ $verified = isset($_GET['verified']);
 
     submitBtn.addEventListener('click', async () => {
         if (!Object.keys(pending).length) return;
-        const setPixels = [];
-        const delPixels = [];
-        Object.entries(pending).forEach(([key, color]) => {
+        const pixels = Object.entries(pending).map(([key, color]) => {
             const [x, y] = key.split(',').map(Number);
-            if (color === ERASE) {
-                if (serverColors[key]) delPixels.push({ x, y, key });
-            } else {
-                setPixels.push({ x, y, color, key });
-            }
+            return { x, y, color: color === ERASE ? null : color };
         });
         submitBtn.disabled    = true;
         submitBtn.textContent = 'Saving…';
         try {
-            await Promise.all([
-                setPixels.length ? apiSet(setPixels) : Promise.resolve(),
-                ...delPixels.map(({ x, y }) => apiDelete({ x1: x, y1: y, x2: x, y2: y })),
-            ]);
-            setPixels.forEach(({ key, color }) => { serverColors[key] = color; });
-            delPixels.forEach(({ key })         => { delete serverColors[key]; });
+            await apiSet(pixels);
             pending = {};
             updateButtons();
+            showToast('Submitted for review');
             render();
         } catch (err) {
             console.error('submit failed', err);
@@ -389,11 +377,18 @@ $verified = isset($_GET['verified']);
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-    // Show toast if redirected here after email verification
     const toastEl = document.getElementById('toast');
-    if (toastEl.textContent) {
+    let toastTimer = null;
+    function showToast(msg) {
+        toastEl.textContent = msg;
         toastEl.classList.add('show');
-        setTimeout(() => toastEl.classList.remove('show'), 4000);
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
+    }
+
+    // Show toast if redirected here after email verification
+    if (toastEl.textContent) {
+        showToast(toastEl.textContent);
         history.replaceState(null, '', location.pathname);
     }
 </script>

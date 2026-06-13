@@ -72,3 +72,39 @@ To activate Apple:
 4. Fill in all four APPLE_* vars in docker-compose.yml
 
 Account linking: If a user signs in via Google/Apple with an email that already exists from email/password signup, the OAuth identity is automatically linked to that account — no duplicate users.
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Generated approval process ////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+---
+Database
+- users.is_admin column (migration, defaults to 0)
+- pending_pixels table: batches of user-submitted changes with status (pending/approved/rejected)
+
+Auth flow (jwt.php, auth.php, oauth.php, oauth_google.php, oauth_apple.php)
+- is_admin is now included in the JWT, propagated through all login paths (password, email verify, Google, Apple)
+
+API (api.php)
+- POST now requires a valid JWT and writes to pending_pixels (not pixels). color: null = an erase request
+- DELETE now requires is_admin
+
+Review API (review-api.php)
+- Admin-only (403 otherwise)
+- GET — returns pending batches with submitter, timestamp, coord sample, paint/erase counts, color swatches
+- POST {action, batch_id} — approve applies pixels/erases to the live pixels table; reject simply marks them
+
+Review page (review.php)
+- Redirects non-admins to login
+- Lists pending batches as cards: user, time, counts, color swatches, coordinates
+- Approve/Reject buttons; card fades and disappears on action
+
+Grid (grid.php)
+- Submit now sends everything through a single POST (erases as color: null)
+- "Submit" button shows a "Submitted for review" toast on success
+- Admin users see a Review link in the toolbar
+
+To promote the first admin user, run this directly in MySQL:
+UPDATE users SET is_admin = 1 WHERE email = 'your@email.com';
+After the user next logs in (fresh JWT), they'll see the Review link and have access to review.php.

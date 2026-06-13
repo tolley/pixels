@@ -54,13 +54,13 @@ function oauthHttpPost(string $url, array $fields): ?array {
 
 function oauthFindOrCreateUser(PDO $pdo, string $provider, string $subject, string $email, string $name): ?array {
     // Returning OAuth user
-    $stmt = $pdo->prepare('SELECT id, username FROM users WHERE oauth_provider = ? AND oauth_subject = ?');
+    $stmt = $pdo->prepare('SELECT id, username, is_admin FROM users WHERE oauth_provider = ? AND oauth_subject = ?');
     $stmt->execute([$provider, $subject]);
     $user = $stmt->fetch();
     if ($user) return $user;
 
     // Email matches an existing account — link it
-    $stmt = $pdo->prepare('SELECT id, username FROM users WHERE email = ?');
+    $stmt = $pdo->prepare('SELECT id, username, is_admin FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if ($user) {
@@ -73,7 +73,7 @@ function oauthFindOrCreateUser(PDO $pdo, string $provider, string $subject, stri
     $username = oauthMakeUsername($pdo, $name ?: $email);
     $pdo->prepare('INSERT INTO users (username, email, password, email_verified, oauth_provider, oauth_subject) VALUES (?,?,NULL,1,?,?)')
         ->execute([$username, $email, $provider, $subject]);
-    return ['id' => (int)$pdo->lastInsertId(), 'username' => $username];
+    return ['id' => (int)$pdo->lastInsertId(), 'username' => $username, 'is_admin' => false];
 }
 
 function oauthMakeUsername(PDO $pdo, string $hint): string {

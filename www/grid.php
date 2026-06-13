@@ -124,7 +124,6 @@ $verified = isset($_GET['verified']);
     const ctx          = canvas.getContext('2d');
     const activeEl     = document.getElementById('active-color');
     const pickerEl     = document.getElementById('color-picker');
-    // const swatchesEl   = document.getElementById('swatches');
     const coordsEl     = document.getElementById('coords');
     const vpDisplay    = document.getElementById('vp-display');
     const stepSelect   = document.getElementById('step-select');
@@ -170,8 +169,6 @@ $verified = isset($_GET['verified']);
         selectedSwatch = null;
         eraserBtn.classList.add('selected');
     });
-
-    // selectColor(PALETTE[0], swatchesEl.firstElementChild);
 
     const submitBtn = document.getElementById('btn-submit');
     const resetBtn  = document.getElementById('btn-reset');

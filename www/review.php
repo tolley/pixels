@@ -79,6 +79,10 @@ function renderBatch(b) {
             <span class="batch-coords">around (${Number(b.sample_x).toLocaleString()}, ${Number(b.sample_y).toLocaleString()})</span>
         </div>
         ${swatches ? `<div class="batch-swatches">${swatches}</div>` : ''}
+        <img class="batch-preview"
+             src="batch-preview.php?batch_id=${encodeURIComponent(b.batch_id)}"
+             alt="Pixel preview"
+             loading="lazy">
         <div class="batch-actions">
             <button class="btn-approve" data-action="approve" data-batch="${escHtml(b.batch_id)}">Approve</button>
             <button class="btn-reject"  data-action="reject"  data-batch="${escHtml(b.batch_id)}">Reject</button>

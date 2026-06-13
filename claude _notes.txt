@@ -108,3 +108,14 @@ Grid (grid.php)
 To promote the first admin user, run this directly in MySQL:
 UPDATE users SET is_admin = 1 WHERE email = 'your@email.com';
 After the user next logs in (fresh JWT), they'll see the Review link and have access to review.php.
+
+////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////// Added a preview for changes ////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+- batch-preview.php — admin-only endpoint that takes a batch_id and returns a PNG image. It fetches the batch's pending pixels, computes a bounding box with 5-cell padding (capped at 60×60 cells), then renders:
+  - Existing grid pixels behind the changes, dimmed to 45% brightness as context
+  - Pending paint pixels at full colour with a white 1px outline so they clearly stand out
+  - Pending erase pixels in red
+- review.php — the renderBatch function now includes an <img> tag pointing at batch-preview.php?batch_id=… between the colour swatches and the Approve/Reject buttons.
+- app.css — .batch-preview styles: max 240px wide, pixelated rendering so the blocky grid aesthetic is preserved, matching dark background while loading.

@@ -150,6 +150,7 @@ $verified = isset($_GET['verified']);
     new ResizeObserver(resizeCanvas).observe(canvas);
 
     pickerEl.addEventListener('input', () => selectColor(pickerEl.value, null));
+    pickerEl.addEventListener('click', () => selectColor(pickerEl.value, null));
 
     const eraserBtn = document.getElementById('btn-eraser');
 
@@ -169,6 +170,16 @@ $verified = isset($_GET['verified']);
         selectedSwatch = null;
         eraserBtn.classList.add('selected');
     });
+
+    const swatchesEl = document.getElementById('swatches');
+    PALETTE.forEach(hex => {
+        const el = document.createElement('div');
+        el.className = 'swatch';
+        el.style.background = hex;
+        el.addEventListener('click', () => selectColor(hex, el));
+        swatchesEl.appendChild(el);
+    });
+    selectColor(PALETTE[0], swatchesEl.firstChild);
 
     const submitBtn = document.getElementById('btn-submit');
     const resetBtn  = document.getElementById('btn-reset');

@@ -27,6 +27,8 @@ $verified = isset($_GET['verified']);
         <input type="color" id="color-picker">
     </div>
 
+    <button type="button" id="btn-eraser" title="Erase pixel (remove colour)">✕</button>
+
     <div id="swatches"></div>
 
     <div class="toolbar-actions">
@@ -36,6 +38,7 @@ $verified = isset($_GET['verified']);
 
     <div id="user-info">
         <span><?= htmlspecialchars($user['username']) ?></span>
+        <a href="/image.php" alt="See the GIF version of this grid." target="_blank">GIF</a>
         <a href="logout.php">Logout</a>
     </div>
 </div>
@@ -45,7 +48,6 @@ $verified = isset($_GET['verified']);
     <canvas id="canvas"></canvas>
 
     <div id="side">
-
         <div class="panel-section">
             <span class="panel-label">Zoom</span>
             <div id="zoom-controls">
@@ -85,7 +87,6 @@ $verified = isset($_GET['verified']);
             <span class="panel-label">Position</span>
             <span class="panel-value" id="coords">x: 0  y: 0</span>
         </div>
-
     </div>
 </div>
 
@@ -110,7 +111,10 @@ $verified = isset($_GET['verified']);
         '#c9ada7','#9a8c98','#4a4e69','#22223b','#f2e9e4',
     ];
 
+    const ERASE = '__erase__';
+
     let colors        = {};
+    let serverColors  = {};
     let pending       = {};
     let selectedColor = PALETTE[0];
 
@@ -118,7 +122,7 @@ $verified = isset($_GET['verified']);
     const ctx          = canvas.getContext('2d');
     const activeEl     = document.getElementById('active-color');
     const pickerEl     = document.getElementById('color-picker');
-    const swatchesEl   = document.getElementById('swatches');
+    // const swatchesEl   = document.getElementById('swatches');
     const coordsEl     = document.getElementById('coords');
     const vpDisplay    = document.getElementById('vp-display');
     const stepSelect   = document.getElementById('step-select');
@@ -146,6 +150,8 @@ $verified = isset($_GET['verified']);
 
     pickerEl.addEventListener('input', () => selectColor(pickerEl.value, null));
 
+    const eraserBtn = document.getElementById('btn-eraser');
+
     function selectColor(hex, swatchEl) {
         selectedColor = hex;
         activeEl.style.background = hex;
@@ -153,9 +159,17 @@ $verified = isset($_GET['verified']);
         if (selectedSwatch) selectedSwatch.classList.remove('selected');
         selectedSwatch = swatchEl;
         if (selectedSwatch) selectedSwatch.classList.add('selected');
+        eraserBtn.classList.remove('selected');
     }
 
-    selectColor(PALETTE[0], swatchesEl.firstElementChild);
+    eraserBtn.addEventListener('click', () => {
+        selectedColor = ERASE;
+        if (selectedSwatch) selectedSwatch.classList.remove('selected');
+        selectedSwatch = null;
+        eraserBtn.classList.add('selected');
+    });
+
+    // selectColor(PALETTE[0], swatchesEl.firstElementChild);
 
     const submitBtn = document.getElementById('btn-submit');
     const resetBtn  = document.getElementById('btn-reset');
@@ -190,7 +204,7 @@ $verified = isset($_GET['verified']);
         }
 
         if (hoverC >= 0 && hoverR >= 0) {
-            ctx.fillStyle = selectedColor;
+            ctx.fillStyle = selectedColor === ERASE ? DEFAULT_COLOR : selectedColor;
             ctx.fillRect(hoverC * step, hoverR * step, cellPx, cellPx);
         }
 
@@ -220,7 +234,11 @@ $verified = isset($_GET['verified']);
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
             const data = await res.json();
-            data.pixels.forEach(p => { colors[`${p.x},${p.y}`] = p.color; });
+            data.pixels.forEach(p => {
+                const k = `${p.x},${p.y}`;
+                colors[k]       = p.color;
+                serverColors[k] = p.color;
+            });
             render();
         } catch (err) {
             console.error('fetchViewport failed', err);
@@ -278,8 +296,13 @@ $verified = isset($_GET['verified']);
         const { col, row } = canvasCell(e);
         if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
         const key = `${col},${row}`;
-        colors[key]  = selectedColor;
-        pending[key] = selectedColor;
+        if (selectedColor === ERASE) {
+            delete colors[key];
+            pending[key] = ERASE;
+        } else {
+            colors[key]  = selectedColor;
+            pending[key] = selectedColor;
+        }
         updateButtons();
         render();
     });
@@ -326,14 +349,25 @@ $verified = isset($_GET['verified']);
 
     submitBtn.addEventListener('click', async () => {
         if (!Object.keys(pending).length) return;
-        const pixels = Object.entries(pending).map(([key, color]) => {
+        const setPixels = [];
+        const delPixels = [];
+        Object.entries(pending).forEach(([key, color]) => {
             const [x, y] = key.split(',').map(Number);
-            return { x, y, color };
+            if (color === ERASE) {
+                if (serverColors[key]) delPixels.push({ x, y, key });
+            } else {
+                setPixels.push({ x, y, color, key });
+            }
         });
         submitBtn.disabled    = true;
         submitBtn.textContent = 'Saving…';
         try {
-            await apiSet(pixels);
+            await Promise.all([
+                setPixels.length ? apiSet(setPixels) : Promise.resolve(),
+                ...delPixels.map(({ x, y }) => apiDelete({ x1: x, y1: y, x2: x, y2: y })),
+            ]);
+            setPixels.forEach(({ key, color }) => { serverColors[key] = color; });
+            delPixels.forEach(({ key })         => { delete serverColors[key]; });
             pending = {};
             updateButtons();
             render();

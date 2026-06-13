@@ -317,10 +317,86 @@ body.home .divider { margin: 4px 0; }
 .swatch:hover    { transform: scale(1.2); }
 .swatch.selected { border-color: #fff; transform: scale(1.15); }
 
+#btn-eraser {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background:
+        linear-gradient(45deg, #888 25%, transparent 25%) 0 0 / 8px 8px,
+        linear-gradient(-45deg, #888 25%, transparent 25%) 0 4px / 8px 8px,
+        linear-gradient(45deg, transparent 75%, #888 75%) 4px -4px / 8px 8px,
+        linear-gradient(-45deg, transparent 75%, #888 75%) -4px 0 / 8px 8px,
+        #555;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: border-color 0.1s, transform 0.1s;
+}
+#btn-eraser:hover    { transform: scale(1.1); }
+#btn-eraser.selected { border-color: #fff; transform: scale(1.05); box-shadow: 0 0 0 2px rgba(255,255,255,0.4); }
+
 .toolbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
 @media (max-width: 640px) {
+    /* ── toolbar ── */
     #swatches { display: none; }
+    #toolbar h1 { display: none; }
+    #user-info span { display: none; }
+
+    /* ── workspace becomes a vertical stack ── */
+    #workspace { flex-direction: column; }
+
+    /* ── side panel moves above the canvas ── */
+    #side {
+        order: -1;
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        gap: 0;
+        padding: 0;
+        border-left: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+
+    /* panel sections become horizontal chips that fill the bar equally */
+    .panel-section {
+        flex: 1;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 6px 4px;
+        border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .panel-section:last-child { border-right: none; }
+
+    /* labels and info-only sections hidden */
+    .panel-label { display: none; }
+    #side > .panel-section:nth-child(2),
+    #side > .panel-section:nth-child(5) { display: none; }
+
+    /* compact zoom */
+    #zoom-controls { gap: 4px; }
+    #zoom-controls button { flex: unset; padding: 4px 8px; font-size: 0.85rem; }
+    #zoom-display { flex: unset; min-width: 28px; text-align: center; }
+
+    /* compact nav pad */
+    #nav-pad {
+        grid-template-rows:    repeat(3, 26px);
+        grid-template-columns: repeat(3, 26px);
+        gap: 3px;
+    }
+    #nav-pad button { font-size: 0.75rem; }
+
+    /* step select: auto width */
+    select { width: auto; }
 }
 
 .toolbar-actions button:disabled { opacity: 0.35; cursor: default; }

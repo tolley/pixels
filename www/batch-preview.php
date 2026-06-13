@@ -25,7 +25,7 @@ $maxCells = 60;
 try {
     $pdo  = getDb();
     $stmt = $pdo->prepare(
-        'SELECT x, y, color FROM pending_pixels WHERE batch_id = ? AND status = "pending"'
+        'SELECT x, y, c FROM pending_pixels WHERE batch_id = ? AND status = "pending"'
     );
     $stmt->execute([$batchId]);
     $pending = $stmt->fetchAll();
@@ -62,7 +62,7 @@ try {
     }
 
     $bgStmt = $pdo->prepare(
-        'SELECT x, y, color FROM pixels
+        'SELECT x, y, c FROM pixels
          WHERE x BETWEEN :x1 AND :x2 AND y BETWEEN :y1 AND :y2'
     );
     $bgStmt->execute([':x1' => $x1, ':x2' => $x2, ':y1' => $y1, ':y2' => $y2]);
@@ -86,7 +86,7 @@ imagefill($img, 0, 0, $bgColor);
 foreach ($background as $row) {
     $cx  = ((int)$row['x'] - $x1) * $scale;
     $cy  = ((int)$row['y'] - $y1) * $scale;
-    $hex = ltrim($row['color'], '#');
+    $hex = ltrim($row['c'], '#');
     $r   = (int)(hexdec(substr($hex, 0, 2)) * 0.45);
     $g   = (int)(hexdec(substr($hex, 2, 2)) * 0.45);
     $b   = (int)(hexdec(substr($hex, 4, 2)) * 0.45);
@@ -103,10 +103,10 @@ foreach ($pending as $p) {
     $cx = ($px - $x1) * $scale;
     $cy = ($py - $y1) * $scale;
 
-    if ($p['color'] === null) {
+    if ($p['c'] === null) {
         $c = imagecolorallocate($img, 230, 57, 70); // red = erase
     } else {
-        $hex = ltrim($p['color'], '#');
+        $hex = ltrim($p['c'], '#');
         $r   = hexdec(substr($hex, 0, 2));
         $g   = hexdec(substr($hex, 2, 2));
         $b   = hexdec(substr($hex, 4, 2));

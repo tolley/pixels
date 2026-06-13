@@ -233,7 +233,7 @@ $verified = isset($_GET['verified']);
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
             const data = await res.json();
-            data.pixels.forEach(p => { colors[`${p.x},${p.y}`] = p.color; });
+            data.pixels.forEach(p => { colors[`${p.x},${p.y}`] = p.c; });
             render();
         } catch (err) {
             console.error('fetchViewport failed', err);
@@ -346,7 +346,7 @@ $verified = isset($_GET['verified']);
         if (!Object.keys(pending).length) return;
         const pixels = Object.entries(pending).map(([key, color]) => {
             const [x, y] = key.split(',').map(Number);
-            return { x, y, color: color === ERASE ? null : color };
+            return { x, y, c: color === ERASE ? null : color };
         });
         submitBtn.disabled    = true;
         submitBtn.textContent = 'Saving…';

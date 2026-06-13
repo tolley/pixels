@@ -24,9 +24,9 @@ try {
                 MIN(x) AS sample_x,
                 MIN(y) AS sample_y,
                 COUNT(*) AS total,
-                SUM(color IS NOT NULL) AS paint_count,
-                SUM(color IS NULL)     AS erase_count,
-                GROUP_CONCAT(DISTINCT color ORDER BY color SEPARATOR ',') AS colors
+                SUM(c IS NOT NULL) AS paint_count,
+                SUM(c IS NULL)     AS erase_count,
+                GROUP_CONCAT(DISTINCT c ORDER BY c SEPARATOR ',') AS colors
              FROM pending_pixels
              WHERE status = 'pending'
              GROUP BY batch_id, username
@@ -49,21 +49,21 @@ try {
 
         if ($action === 'approve') {
             $stmt = $pdo->prepare(
-                'SELECT x, y, color FROM pending_pixels WHERE batch_id = ? AND status = "pending"'
+                'SELECT x, y, c FROM pending_pixels WHERE batch_id = ? AND status = "pending"'
             );
             $stmt->execute([$batchId]);
             $pixels = $stmt->fetchAll();
 
-            $paint = array_values(array_filter($pixels, fn($p) => $p['color'] !== null));
-            $erase = array_values(array_filter($pixels, fn($p) => $p['color'] === null));
+            $paint = array_values(array_filter($pixels, fn($p) => $p['c'] !== null));
+            $erase = array_values(array_filter($pixels, fn($p) => $p['c'] === null));
 
             if ($paint) {
                 $ph   = implode(', ', array_fill(0, count($paint), '(?, ?, ?)'));
                 $args = [];
-                foreach ($paint as $p) array_push($args, $p['x'], $p['y'], $p['color']);
+                foreach ($paint as $p) array_push($args, $p['x'], $p['y'], $p['c']);
                 $pdo->prepare(
-                    "INSERT INTO pixels (x, y, color) VALUES $ph
-                     ON DUPLICATE KEY UPDATE color = VALUES(color), create_date = create_date"
+                    "INSERT INTO pixels (x, y, c) VALUES $ph
+                     ON DUPLICATE KEY UPDATE c = VALUES(c), create_date = create_date"
                 )->execute($args);
             }
 

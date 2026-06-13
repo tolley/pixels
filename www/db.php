@@ -62,17 +62,22 @@ function getDb(): PDO {
     $pdo->exec("CREATE TABLE IF NOT EXISTS pixels (
         x           INT UNSIGNED NOT NULL,
         y           INT UNSIGNED NOT NULL,
-        color       CHAR(7)      NOT NULL,
+        c           CHAR(7)      NOT NULL,
         create_date TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (x, y)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+    // Migrate: rename color → c
+    if ($pdo->query("SHOW COLUMNS FROM pixels LIKE 'color'")->rowCount() > 0) {
+        $pdo->exec("ALTER TABLE pixels CHANGE color c CHAR(7) NOT NULL");
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS pending_pixels (
         id           INT UNSIGNED  NOT NULL AUTO_INCREMENT,
         batch_id     CHAR(32)      NOT NULL,
         x            INT UNSIGNED  NOT NULL,
         y            INT UNSIGNED  NOT NULL,
-        color        CHAR(7)       NULL,
+        c            CHAR(7)       NULL,
         user_id      INT UNSIGNED  NOT NULL,
         username     VARCHAR(64)   NOT NULL,
         submitted_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -83,6 +88,11 @@ function getDb(): PDO {
         KEY idx_status (status),
         CONSTRAINT fk_pp_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+    // Migrate: rename color → c
+    if ($pdo->query("SHOW COLUMNS FROM pending_pixels LIKE 'color'")->rowCount() > 0) {
+        $pdo->exec("ALTER TABLE pending_pixels CHANGE color c CHAR(7) NULL");
+    }
 
     return $pdo;
 }

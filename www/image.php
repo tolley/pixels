@@ -24,7 +24,7 @@ $imgH   = $cellsH * $scale;
 try {
     $pdo  = getDb();
     $stmt = $pdo->prepare(
-        'SELECT x, y, color FROM pixels
+        'SELECT x, y, c FROM pixels
          WHERE x BETWEEN :x1 AND :x2
            AND y BETWEEN :y1 AND :y2'
     );
@@ -49,7 +49,7 @@ $colors = [];
 foreach ($rows as $row) {
     $cx  = ((int)$row['x'] - $x1) * $scale;
     $cy  = ((int)$row['y'] - $y1) * $scale;
-    $hex = ltrim($row['color'], '#');
+    $hex = ltrim($row['c'], '#');
     if (!isset($colors[$hex])) {
         $r = hexdec(substr($hex, 0, 2));
         $g = hexdec(substr($hex, 2, 2));

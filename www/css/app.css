@@ -348,34 +348,19 @@ body.home .divider { margin: 4px 0; }
     #toolbar h1 { display: none; }
     #user-info span { display: none; }
 
-    /* ── workspace becomes a vertical stack ── */
-    #workspace { flex-direction: column; }
-
-    /* ── side panel moves above the canvas ── */
+    /* ── side panel sits below the canvas ── */
     #side {
-        order: -1;
-        width: 100%;
-        flex-direction: row;
-        align-items: center;
-        gap: 0;
         padding: 0;
-        border-left: none;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        overflow-x: auto;
-        overflow-y: visible;
     }
 
-    /* panel sections become horizontal chips that fill the bar equally */
+    /* panel sections compact */
     .panel-section {
         flex: 1;
         flex-direction: row;
-        align-items: center;
         justify-content: center;
         gap: 5px;
         padding: 6px 4px;
-        border-right: 1px solid rgba(255,255,255,0.08);
     }
-    .panel-section:last-child { border-right: none; }
 
     /* labels and info-only sections hidden */
     .panel-label { display: none; }
@@ -425,6 +410,7 @@ button:hover { background: rgba(255,255,255,0.18); }
 #workspace {
     display: flex;
     flex: 1;
+    flex-direction: column;
     min-height: 0;
     position: relative;
 }
@@ -440,22 +426,28 @@ button:hover { background: rgba(255,255,255,0.18); }
 
 /* ── side panel ── */
 #side {
-    width: 160px;
+    width: 100%;
     flex-shrink: 0;
     background: #16213e;
-    border-left: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255,255,255,0.08);
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px 12px;
-    overflow-y: auto;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 0;
+    padding: 10px 16px;
+    overflow-x: auto;
 }
 
 .panel-section {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 6px;
+    padding: 0 16px;
+    border-right: 1px solid rgba(255,255,255,0.08);
 }
+.panel-section:last-child { border-right: none; }
 
 .panel-label {
     font-size: 0.7rem;

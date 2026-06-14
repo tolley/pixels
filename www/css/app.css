@@ -18,11 +18,12 @@ body.auth {
 }
 
 /* grid layout */
-html.grid, body.grid { height: 100%; }
+html.grid { height: 100%; }
 body.grid {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100vh;   /* fallback for older browsers */
+    height: 100dvh;  /* dynamic: adjusts as mobile browser chrome shows/hides */
     user-select: none;
     overflow: hidden;
 }
@@ -343,7 +344,30 @@ body.home .divider { margin: 4px 0; }
 .toolbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
 @media (max-width: 640px) {
+    /* constrain to visible dimensions — prevents canvas from being sized beyond the viewport */
+    html.grid {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100dvh;
+    }
+    body.grid {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+
+    #workspace {
+        width: 100vw;
+        min-width: 0;
+        overflow: hidden;
+    }
+
     /* ── toolbar ── */
+    #toolbar {
+        max-width: 100vw;
+        overflow: hidden;
+    }
     #swatches { display: none; }
     #toolbar h1 { display: none; }
     #user-info span { display: none; }
@@ -359,7 +383,7 @@ body.home .divider { margin: 4px 0; }
         flex-direction: row;
         justify-content: center;
         gap: 5px;
-        padding: 6px 4px;
+        padding: 6px 4px 10px;
     }
 
     /* info-only sections hidden */
@@ -416,6 +440,8 @@ button:hover { background: rgba(255,255,255,0.18); }
     flex: 1;
     flex-direction: column;
     min-height: 0;
+    min-width: 0;
+    width: 100%;
     position: relative;
 }
 

@@ -3,6 +3,38 @@ header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'jwt.php';
 
+function sendPixelReviewEmail(string $to, string $username, string $status): void {
+    $appUrl   = rtrim(getenv('APP_URL') ?: 'http://localhost:8080', '/');
+    $imageUrl = $appUrl . '/image.php';
+    $approved = $status === 'approved';
+    $subject  = $approved ? 'Your pixels have been approved!' : 'Your pixels were not approved';
+
+    $headingColor = $approved ? '#2e7d32' : '#c62828';
+    $heading      = $approved ? 'Pixels Approved!' : 'Pixel Submission Update';
+    $safeUser     = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+    $safeUrl      = htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8');
+
+    $statusLine = $approved
+        ? 'Great news &mdash; your pixel submission has been <strong>approved</strong> and your colors are now live on the canvas!'
+        : 'Unfortunately your pixel submission was <strong>not approved</strong> this time. Feel free to try again!';
+
+    $body  = '<!DOCTYPE html><html><head><meta charset="utf-8"></head>';
+    $body .= '<body style="font-family:sans-serif;max-width:560px;margin:40px auto;color:#333">';
+    $body .= '<h2 style="color:' . $headingColor . '">' . $heading . '</h2>';
+    $body .= '<p>Hi ' . $safeUser . ',</p>';
+    $body .= '<p>' . $statusLine . '</p>';
+    $body .= '<p><a href="' . $safeUrl . '" style="display:inline-block;padding:10px 20px;background:#1565c0;color:#fff;border-radius:4px;text-decoration:none">View the Canvas</a></p>';
+    $body .= '<p>Thank you so much for contributing and helping make this experiment look amazing &mdash; every pixel counts!</p>';
+    $body .= '<p style="color:#888;font-size:0.85em">&mdash; The Pixel Playground Team</p>';
+    $body .= '</body></html>';
+
+    $headers  = "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $headers .= "From: Pixel Playground <noreply@pixelplayground.local>\r\n";
+
+    mail($to, $subject, $body, $headers);
+}
+
 $authUser = jwtFromRequest();
 if (!$authUser || empty($authUser['is_admin'])) {
     http_response_code(403);
@@ -73,9 +105,26 @@ try {
             }
         }
 
+        $newStatus = $action === 'approve' ? 'approved' : 'rejected';
+
         $pdo->prepare(
             'UPDATE pending_pixels SET status = ?, reviewed_at = NOW() WHERE batch_id = ?'
-        )->execute([$action === 'approve' ? 'approved' : 'rejected', $batchId]);
+        )->execute([$newStatus, $batchId]);
+
+        // Look up user email and username for the notification
+        $userRow = $pdo->prepare(
+            'SELECT u.email, u.username
+             FROM users u
+             JOIN pending_pixels pp ON pp.user_id = u.id
+             WHERE pp.batch_id = ?
+             LIMIT 1'
+        );
+        $userRow->execute([$batchId]);
+        $recipient = $userRow->fetch();
+
+        if ($recipient) {
+            sendPixelReviewEmail($recipient['email'], $recipient['username'], $newStatus);
+        }
 
         echo json_encode(['ok' => true]);
 

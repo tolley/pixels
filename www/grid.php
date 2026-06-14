@@ -29,8 +29,6 @@ $verified = isset($_GET['verified']);
 
     <button type="button" id="btn-eraser" title="Erase pixel (remove colour)">✕</button>
 
-    <div id="swatches"></div>
-
     <div class="toolbar-actions">
         <button type="button" id="btn-submit" disabled>Submit</button>
         <button type="button" id="btn-reset" disabled>Reset</button>
@@ -171,15 +169,7 @@ $verified = isset($_GET['verified']);
         eraserBtn.classList.add('selected');
     });
 
-    const swatchesEl = document.getElementById('swatches');
-    PALETTE.forEach(hex => {
-        const el = document.createElement('div');
-        el.className = 'swatch';
-        el.style.background = hex;
-        el.addEventListener('click', () => selectColor(hex, el));
-        swatchesEl.appendChild(el);
-    });
-    selectColor(PALETTE[0], swatchesEl.firstChild);
+    selectColor( PALETTE[0] );
 
     const submitBtn = document.getElementById('btn-submit');
     const resetBtn  = document.getElementById('btn-reset');

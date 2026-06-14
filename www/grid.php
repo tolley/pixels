@@ -14,6 +14,14 @@ $verified = isset($_GET['verified']);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pixel Playground</title>
     <link rel="stylesheet" href="css/app.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-483307165" crossorigin="anonymous"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7254H2D132"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-7254H2D132');
+    </script>
 </head>
 <body class="grid">
 
@@ -87,6 +95,15 @@ $verified = isset($_GET['verified']);
         <div class="panel-section">
             <span class="panel-label">Position</span>
             <span class="panel-value" id="coords">x: 0  y: 0</span>
+        </div>
+
+        <div id="ad-slot">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-483307165"
+                 data-ad-slot="auto"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
         </div>
     </div>
 </div>
@@ -167,6 +184,7 @@ $verified = isset($_GET['verified']);
         if (selectedSwatch) selectedSwatch.classList.remove('selected');
         selectedSwatch = null;
         eraserBtn.classList.add('selected');
+        gtag('event', 'tool_select', { tool: 'eraser' });
     });
 
     selectColor( PALETTE[0] );
@@ -288,6 +306,7 @@ $verified = isset($_GET['verified']);
         scheduleRender();
     });
 
+    let pixelClickCount = 0;
     canvas.addEventListener('click', e => {
         const { col, row } = canvasCell(e);
         if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
@@ -298,6 +317,16 @@ $verified = isset($_GET['verified']);
         } else {
             colors[key]  = selectedColor;
             pending[key] = selectedColor;
+        }
+        pixelClickCount++;
+        if (pixelClickCount === 1 || pixelClickCount % 10 === 0) {
+            gtag('event', 'pixel_paint', {
+                tool:         selectedColor === ERASE ? 'eraser' : 'brush',
+                color:        selectedColor === ERASE ? null : selectedColor,
+                pixel_x:      col,
+                pixel_y:      row,
+                total_painted: pixelClickCount,
+            });
         }
         updateButtons();
         render();
@@ -333,11 +362,13 @@ $verified = isset($_GET['verified']);
     const MAX_ZOOM = 32;
 
     function applyZoom(z) {
+        const prev = cellPx;
         cellPx = clamp(z, MIN_ZOOM, MAX_ZOOM);
         step   = cellPx + GAP;
         zoomDisplay.textContent = cellPx + ' px';
         recalc();
         scheduleViewportFetch();
+        if (cellPx !== prev) gtag('event', 'zoom_change', { zoom_px: cellPx });
     }
 
     document.getElementById('btn-zoom-out').addEventListener('click', () => applyZoom(cellPx - 2));
@@ -349,6 +380,7 @@ $verified = isset($_GET['verified']);
             const [x, y] = key.split(',').map(Number);
             return { x, y, c: color === ERASE ? null : color };
         });
+        const pixelCount = pixels.length;
         submitBtn.disabled    = true;
         submitBtn.textContent = 'Saving…';
         try {
@@ -357,20 +389,24 @@ $verified = isset($_GET['verified']);
             updateButtons();
             showToast('Submitted for review');
             render();
+            gtag('event', 'pixels_submit', { pixel_count: pixelCount });
         } catch (err) {
             console.error('submit failed', err);
             submitBtn.disabled    = false;
             submitBtn.textContent = 'Save failed — retry';
             setTimeout(() => updateButtons(), 3000);
+            gtag('event', 'submit_error', { pixel_count: pixelCount });
         }
     });
 
     resetBtn.addEventListener('click', () => {
+        const discarded = Object.keys(pending).length;
         for (const key of Object.keys(pending)) delete colors[key];
         pending = {};
         updateButtons();
         render();
         scheduleViewportFetch();
+        gtag('event', 'pixels_reset', { pixel_count: discarded });
     });
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
@@ -390,5 +426,6 @@ $verified = isset($_GET['verified']);
         history.replaceState(null, '', location.pathname);
     }
 </script>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </body>
 </html>

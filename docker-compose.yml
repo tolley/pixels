@@ -12,19 +12,17 @@ services:
       - mailhog
     environment:
       MYSQL_HOST: db
-      MYSQL_DATABASE: appdb
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: secret
-      APP_URL: http://localhost:8080
-      JWT_SECRET: dev-secret-change-in-production
-      # Google OAuth — create credentials at console.cloud.google.com
-      GOOGLE_CLIENT_ID: "631487616394-p0u9u8fqn0rc3rugdg98u00crrpqndpo.apps.googleusercontent.com"
-      GOOGLE_CLIENT_SECRET: ""
-      # Apple Sign In — configure at developer.apple.com/account/resources/authkeys
-      APPLE_CLIENT_ID: ""      # Services ID, e.g. com.example.pixelplayground.signin
-      APPLE_TEAM_ID: ""        # 10-char Team ID from Apple Developer account
-      APPLE_KEY_ID: ""         # Key ID of the Sign In with Apple key
-      APPLE_PRIVATE_KEY: ""    # base64-encoded contents of the .p8 private key file
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      APP_URL: ${APP_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      APPLE_CLIENT_ID: ${APPLE_CLIENT_ID}
+      APPLE_TEAM_ID: ${APPLE_TEAM_ID}
+      APPLE_KEY_ID: ${APPLE_KEY_ID}
+      APPLE_PRIVATE_KEY: ${APPLE_PRIVATE_KEY}
 
   db:
     image: mysql:5.7
@@ -33,10 +31,10 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootsecret
-      MYSQL_DATABASE: appdb
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
   mailhog:
     image: mailhog/mailhog

@@ -1,8 +1,8 @@
 <?php
-require_once 'jwt.php';
+require_once 'jwt';
 $user = jwtFromRequest();
 if (!$user || empty($user['is_admin'])) {
-    header('Location: login.php');
+    header('Location: login');
     exit;
 }
 ?>
@@ -19,8 +19,8 @@ if (!$user || empty($user['is_admin'])) {
 <div id="review-header">
     <h1>Review Queue</h1>
     <nav class="review-nav">
-        <a href="grid.php">Grid</a>
-        <a href="logout.php">Logout</a>
+        <a href="grid">Grid</a>
+        <a href="logout">Logout</a>
     </nav>
 </div>
 
@@ -34,7 +34,7 @@ if (!$user || empty($user['is_admin'])) {
 let batches = [];
 
 async function load() {
-    const res  = await fetch('review-api.php');
+    const res  = await fetch('review-api');
     const data = await res.json();
     batches = data.batches ?? [];
     render();
@@ -80,7 +80,7 @@ function renderBatch(b) {
         </div>
         ${swatches ? `<div class="batch-swatches">${swatches}</div>` : ''}
         <img class="batch-preview"
-             src="batch-preview.php?batch_id=${encodeURIComponent(b.batch_id)}"
+             src="batch-preview?batch_id=${encodeURIComponent(b.batch_id)}"
              alt="Pixel preview"
              loading="lazy">
         <div class="batch-actions">
@@ -98,7 +98,7 @@ async function act(action, batchId) {
     }
 
     try {
-        const res  = await fetch('review-api.php', {
+        const res  = await fetch('review-api', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ action, batch_id: batchId }),

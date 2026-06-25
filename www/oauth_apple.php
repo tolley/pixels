@@ -6,10 +6,10 @@ $teamId      = getenv('APPLE_TEAM_ID')      ?: '';
 $keyId       = getenv('APPLE_KEY_ID')       ?: '';
 $privateKey  = getenv('APPLE_PRIVATE_KEY')  ?: ''; // base64-encoded PEM (or raw PEM)
 $appUrl      = rtrim(getenv('APP_URL') ?: 'http://localhost:8080', '/');
-$redirectUri = $appUrl . '/oauth_apple.php';
+$redirectUri = $appUrl . '/oauth_apple';
 
 if (!$clientId || !$teamId || !$keyId || !$privateKey) {
-    header('Location: /login.php?error=oauth_config');
+    header('Location: /login?error=oauth_config');
     exit;
 }
 
@@ -30,21 +30,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // --- Apple POST callback ---
 if ($_POST['error'] ?? null) {
-    header('Location: /login.php?error=oauth_cancelled');
+    header('Location: /login?error=oauth_cancelled');
     exit;
 }
 
 $code  = $_POST['code']  ?? '';
 $state = $_POST['state'] ?? '';
 if (!$code || !$state || !oauthVerifyState($state, 'apple')) {
-    header('Location: /login.php?error=oauth_state');
+    header('Location: /login?error=oauth_state');
     exit;
 }
 
 $secret = appleClientSecret($teamId, $clientId, $keyId, $privateKey);
 if (!$secret) {
     error_log('Apple OAuth: failed to build client secret — check APPLE_PRIVATE_KEY');
-    header('Location: /login.php?error=oauth_config');
+    header('Location: /login?error=oauth_config');
     exit;
 }
 
@@ -58,13 +58,13 @@ $tokens = oauthHttpPost('https://appleid.apple.com/auth/token', [
 
 $idToken = $tokens['id_token'] ?? null;
 if (!$idToken) {
-    header('Location: /login.php?error=oauth_failed');
+    header('Location: /login?error=oauth_failed');
     exit;
 }
 
 $claims = oauthDecodeIdToken($idToken);
 if (!$claims || empty($claims['sub'])) {
-    header('Location: /login.php?error=oauth_failed');
+    header('Location: /login?error=oauth_failed');
     exit;
 }
 
@@ -77,11 +77,11 @@ if (!$email) {
     $stmt->execute(['apple', $claims['sub']]);
     $user = $stmt->fetch();
     if (!$user) {
-        header('Location: /login.php?error=oauth_failed');
+        header('Location: /login?error=oauth_failed');
         exit;
     }
     jwtSetCookie($user['id'], $user['username'], (bool)($user['is_admin'] ?? false));
-    header('Location: /grid.php');
+    header('Location: /grid');
     exit;
 }
 
@@ -96,12 +96,12 @@ if (!empty($_POST['user'])) {
 
 $user = oauthFindOrCreateUser($pdo, 'apple', $claims['sub'], $email, $name);
 if (!$user) {
-    header('Location: /login.php?error=oauth_failed');
+    header('Location: /login?error=oauth_failed');
     exit;
 }
 
 jwtSetCookie($user['id'], $user['username'], (bool)($user['is_admin'] ?? false));
-header('Location: /grid.php');
+header('Location: /grid');
 exit;
 
 // --- Apple-specific helpers ---

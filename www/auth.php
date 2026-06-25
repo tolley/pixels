@@ -41,7 +41,7 @@ function createVerifyToken(PDO $pdo, int $userId): string {
 
 // function sendVerificationEmail(string $to, string $username, string $token): void {
 //     $appUrl = rtrim(getenv('APP_URL') ?: 'https://pixels.tolleycoder.com', '/');
-//     $url    = "$appUrl/auth.php?action=verify&token=$token";
+//     $url    = "$appUrl/auth?action=verify&token=$token";
 //     $body   = "Hi $username,\n\nVerify your email:\n\n$url\n\nExpires in 24 hours.";
 
 //     $headers  = "From: noreply@pixels.tolleycoder.com\r\n";
@@ -173,7 +173,7 @@ function doVerify(): void {
     $token = trim($_GET['token'] ?? '');
 
     if (!$token) {
-        header('Location: login.php?error=invalid_token');
+        header('Location: login?error=invalid_token');
         return;
     }
 
@@ -189,7 +189,7 @@ function doVerify(): void {
         $row = $stmt->fetch();
 
         if (!$row) {
-            header('Location: login.php?error=expired');
+            header('Location: login?error=expired');
             return;
         }
 
@@ -199,9 +199,9 @@ function doVerify(): void {
             ->execute([$token]);
 
         jwtSetCookie((int)$row['user_id'], $row['username'], (bool)($row['is_admin'] ?? false));
-        header('Location: grid.php?verified=1');
+        header('Location: grid?verified=1');
 
     } catch (Exception $e) {
-        header('Location: login.php?error=server_error');
+        header('Location: login?error=server_error');
     }
 }

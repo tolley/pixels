@@ -1,12 +1,15 @@
 <?php
 function getDb(): PDO {
-    $host   = getenv('MYSQL_HOST')     ?: 'db';
-    $dbname = getenv('MYSQL_DATABASE') ?: 'appdb';
-    $user   = getenv('MYSQL_USER')     ?: 'appuser';
-    $pass   = getenv('MYSQL_PASSWORD') ?: 'secret';
+    $env = parse_ini_file( '.env', false, INI_SCANNER_RAW );
+
+    $host   = $env['MYSQL_HOST'] ?: 'db';
+    $dbname = $env['MYSQL_DATABASE'] ?: 'appdb';
+    $user   = $env['MYSQL_USER']     ?: 'appuser';
+    $pass   = $env['MYSQL_PASSWORD'] ?: 'secret';
+    $port   = $env['MYSQL_PORT']     ?: '3306';
 
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
+        "mysql:host=$host;dbname=$dbname;charset=utf8;port=$port",
         $user, $pass,
         [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

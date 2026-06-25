@@ -1,5 +1,5 @@
 <?php
-// GET /image.php?x1=0&y1=0&x2=199&y2=199[&scale=1]
+// GET /image?x1=0&y1=0&x2=199&y2=199[&scale=1]
 //
 // Returns a GIF where each grid cell is one pixel (or scale×scale pixels).
 // Cells with no data are transparent.

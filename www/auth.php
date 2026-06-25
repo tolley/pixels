@@ -1,6 +1,8 @@
 <?php
+
 require_once 'db.php';
 require_once 'jwt.php';
+require_once './PHPMailer/index.php';
 
 $action = $_REQUEST['action'] ?? '';
 
@@ -37,13 +39,17 @@ function createVerifyToken(PDO $pdo, int $userId): string {
     return $token;
 }
 
-function sendVerificationEmail(string $to, string $username, string $token): void {
-    $appUrl = rtrim(getenv('APP_URL') ?: 'http://localhost:8080', '/');
-    $url    = "$appUrl/auth.php?action=verify&token=$token";
-    $body   = "Hi $username,\n\nVerify your Pixel Playground email:\n\n$url\n\nExpires in 24 hours.";
-    mail($to, 'Verify your Pixel Playground email', $body,
-        "From: noreply@pixelplayground.local\r\nContent-Type: text/plain; charset=UTF-8");
-}
+// function sendVerificationEmail(string $to, string $username, string $token): void {
+//     $appUrl = rtrim(getenv('APP_URL') ?: 'https://pixels.tolleycoder.com', '/');
+//     $url    = "$appUrl/auth.php?action=verify&token=$token";
+//     $body   = "Hi $username,\n\nVerify your email:\n\n$url\n\nExpires in 24 hours.";
+
+//     $headers  = "From: noreply@pixels.tolleycoder.com\r\n";
+//     $headers .= "MINE-VERSION: 1.0\r\n";
+//     $headers .= "Content-type: text/plain; charset=URF-8\r\n";
+
+//     mail($to, 'Verify your email address', $body, $headers );
+// }
 
 // ── actions ────────────────────────────────────────────────────────────────
 

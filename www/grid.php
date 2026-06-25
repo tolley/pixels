@@ -1,11 +1,21 @@
 <?php
 require_once 'jwt.php';
+
 $user = jwtFromRequest();
 if (!$user) {
-    header('Location: login.php');
+    header('Location: login');
     exit;
 }
 $verified = isset($_GET['verified']);
+
+$env = getEnv();
+if( array_key_exists( 'GOOGLE_CLIENT_ID', $env ) && strlen( $env['GOOGLE_CLIENT_ID'] ) ) {
+    $googleClientId = $env['GOOGLE_CLIENT_ID'];
+}
+else {
+    $googleClientId = 0;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en" class="grid">
@@ -21,7 +31,7 @@ $verified = isset($_GET['verified']);
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-7254H2D132');
+        gtag( 'config', '<?= $googleClientId ?>' );
     </script>
 </head>
 <body class="grid">
@@ -45,11 +55,11 @@ $verified = isset($_GET['verified']);
 
     <div id="user-info">
         <span><?= htmlspecialchars($user['username']) ?></span>
-        <a href="/image.php" alt="See the GIF version of this grid." target="_blank">GIF</a>
+        <a href="/image" alt="See the GIF version of this grid." target="_blank">GIF</a>
         <?php if (!empty($user['is_admin'])): ?>
-        <a href="review.php">Review</a>
+        <a href="review">Review</a>
         <?php endif; ?>
-        <a href="logout.php">Logout</a>
+        <a href="logout">Logout</a>
     </div>
 </div>
 

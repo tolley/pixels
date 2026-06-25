@@ -1,1 +1,14 @@
-php_value auto_prepend_file /var/www/html/prepend.php
+DirectoryIndex index.php
+
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^.]+)$ $1.php [NC,L]
+
+# RewriteCond %{REQUEST_FILENAME}.php -f
+# RewriteRule ^([^/]+)/?$ $1.php [L]
+
+# Redirect Trailing Slashes If Not A Folder...
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteCond %{REQUEST_URI} (.+)/$
+# RewriteRule ^ %1 [L,R=301]

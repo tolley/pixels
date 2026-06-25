@@ -1,5 +1,9 @@
 FROM php:8.5.4-apache
 
+COPY apache.conf /etc/apache2/conf-enabled/custom.conf
+
+RUN a2enmod rewrite
+
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \

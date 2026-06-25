@@ -1,7 +1,7 @@
 <?php
 require_once 'jwt.php';
 if (jwtFromRequest()) {
-    header('Location: grid.php');
+    header('Location: grid');
     exit;
 }
 

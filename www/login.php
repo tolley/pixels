@@ -104,7 +104,7 @@ $hasSocial = $hasGoogle || $hasApple;
         btn.disabled   = true;
         btn.textContent = 'Logging in…';
         try {
-            const res  = await fetch('auth.?action=login', {
+            const res  = await fetch('auth?action=login', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ email, password }),

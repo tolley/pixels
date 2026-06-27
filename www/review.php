@@ -1,5 +1,5 @@
 <?php
-require_once 'jwt';
+require_once 'jwt.php';
 $user = jwtFromRequest();
 if (!$user || empty($user['is_admin'])) {
     header('Location: login');

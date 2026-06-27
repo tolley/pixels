@@ -4,6 +4,7 @@ window.addEventListener( 'load', () => {
     const GAP           = 1;
     const DEFAULT_COLOR = '#3a3a5c';
     const GAP_COLOR     = '#0f0f1a';
+    const MAX_VP        = 1024;
 
     let cellPx = 4;
     let step   = cellPx + GAP;
@@ -37,11 +38,26 @@ window.addEventListener( 'load', () => {
     let hoverC = -1, hoverR = -1;
     let rafPending = false;
 
+
     function recalc() {
+        // Tolley
         vpCols = Math.max(1, Math.floor(canvas.width  / step));
         vpRows = Math.max(1, Math.floor(canvas.height / step));
         viewX  = clamp(viewX, 0, Math.max(0, COLS - vpCols));
         viewY  = clamp(viewY, 0, Math.max(0, ROWS - vpRows));
+
+        // If viewX or viewY are out of range, put the visible space
+        // back into range
+        if( viewX > MAX_VP ) {
+            let diff = viewX - MAX_VP;
+            viewX = viewX - diff;
+        }
+
+        if( viewY > MAX_VP ) {
+            let diff = viewY - MAX_VP;
+            viewY = viewY - diff;
+        }
+
         vpDisplay.textContent = `${vpCols} × ${vpRows}`;
     }
 
@@ -93,12 +109,12 @@ window.addEventListener( 'load', () => {
         ctx.fillStyle = GAP_COLOR;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        for (let r = 0; r < vpRows; r++) {
-            for (let c = 0; c < vpCols; c++) {
+        for( let r = 0; r < vpRows; r++ ) {
+            for( let c = 0; c < vpCols; c++ ) {
                 ctx.fillStyle = colors[`${viewX + c},${viewY + r}`] ?? DEFAULT_COLOR;
                 ctx.fillRect(c * step, r * step, cellPx, cellPx);
-            }
-        }
+            } // End for c
+        }// End for r
 
         // mark unsaved pixels with a small white dot
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
@@ -136,8 +152,12 @@ window.addEventListener( 'load', () => {
     async function fetchViewport() {
         gridLoadingEl.classList.add('show');
 
+        // Tolley
+        // Keep the pixels in range
         const x1 = viewX, y1 = viewY;
         const x2 = viewX + vpCols - 1, y2 = viewY + vpRows - 1;
+
+        console.log( 'fetViewport: x1 = ', x1, 'x2 = ', x2, 'y1 = ', y1, 'y2 = ' , y2);
         
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
@@ -225,8 +245,25 @@ window.addEventListener( 'load', () => {
     function getStep() { return parseInt(stepSelect.value, 10); }
 
     function navigate(dx, dy) {
+        // Tolley
+        // Need to keep the pixels in range, 0 to 1024 x and y I believe
         viewX = clamp(viewX + dx, 0, Math.max(0, COLS - vpCols));
         viewY = clamp(viewY + dy, 0, Math.max(0, ROWS - vpRows));
+
+        // If viewX or viewY are out of range, put the visible space
+        // back into range
+        if( viewX > MAX_VP ) {
+            let diff = viewX - MAX_VP;
+            viewX = viewX - diff;
+        }
+
+        if( viewY > MAX_VP ) {
+            let diff = viewY - MAX_VP;
+            viewY = viewY - diff;
+        }
+
+        console.log( 'navigate: viewX = ' + viewX, 'yiewY = ' + viewY );
+
         coordsEl.textContent = `x: ${viewX.toLocaleString()}  y: ${viewY.toLocaleString()}`;
         render();
         scheduleViewportFetch();
@@ -248,8 +285,8 @@ window.addEventListener( 'load', () => {
         }
     });
 
-    const MIN_ZOOM = 1;
-    const MAX_ZOOM = 32;
+    const MIN_ZOOM = 2;
+    const MAX_ZOOM = 16;
 
     function applyZoom(z) {
         const prev = cellPx;

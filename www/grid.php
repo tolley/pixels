@@ -75,11 +75,17 @@ else {
                 <span class="panel-value" id="zoom-display">4 px</span>
                 <button type="button" id="btn-zoom-in">+</button>
             </div>
-        </div>
+            <br />
 
-        <div class="panel-section">
-            <span class="panel-label">Visible cells</span>
-            <span class="panel-value" id="vp-display">— × —</span>
+            <span class="panel-label">Step size</span>
+            <select id="step-select">
+                <option value="1">1 cell</option>
+                <option value="5">5 cells</option>
+                <option value="10">10 cells</option>
+                <option value="25" selected>25 cells</option>
+                <option value="50">50 cells</option>
+                <option value="100">100 cells</option>
+            </select>
         </div>
 
         <div class="panel-section">
@@ -92,18 +98,12 @@ else {
             </div>
         </div>
 
-        <div class="panel-section">
-            <span class="panel-label">Step size</span>
-            <select id="step-select">
-                <option value="1">1 cell</option>
-                <option value="5">5 cells</option>
-                <option value="10" selected>10 cells</option>
-                <option value="25">25 cells</option>
-                <option value="50">50 cells</option>
-            </select>
-        </div>
 
         <div class="panel-section">
+            <span class="panel-label">Visible cells</span>
+            <span class="panel-value" id="vp-display">— × —</span>
+            <br />
+
             <span class="panel-label">Position</span>
             <span class="panel-value" id="coords">x: 0  y: 0</span>
         </div>

@@ -25,7 +25,8 @@ else {
     <title>Pixel Playground</title>
     <link rel="stylesheet" href="css/app.css">
     <script type="text/javascript" src="/js/grid.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-483307165" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184"
+     crossorigin="anonymous"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7254H2D132"></script>
     <script>
         window.dataLayer = window.dataLayer || [];

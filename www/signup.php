@@ -16,6 +16,8 @@ $hasSocial = $hasGoogle || $hasApple;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign Up — Pixel Playground</title>
     <link rel="stylesheet" href="css/app.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184"
+     crossorigin="anonymous"></script>
 </head>
 <body class="auth">
 <div class="card">

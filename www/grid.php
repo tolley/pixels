@@ -99,14 +99,15 @@ else {
             </div>
         </div>
 
-
         <div class="panel-section">
-            <span class="panel-label">Visible cells</span>
-            <span class="panel-value" id="vp-display">— × —</span>
+            <span class="panel-label">
+                Position
+            </span>
+            <span class="panel-value" id="coords">x: 0  y: 0</span>
             <br />
 
-            <span class="panel-label">Position</span>
-            <span class="panel-value" id="coords">x: 0  y: 0</span>
+            <span class="panel-label">Visible cells</span>
+            <span class="panel-value" id="vp-display">— × —</span>
         </div>
 
         <div id="ad-slot">

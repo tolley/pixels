@@ -387,8 +387,8 @@ body.home .divider { margin: 4px 0; }
     }
 
     /* info-only sections hidden */
-    #side > .panel-section:nth-child(2),
-    #side > .panel-section:nth-child(5) { display: none; }
+    /* #side > .panel-section:nth-child(2),
+    #side > .panel-section:nth-child(5) { display: none; } */
 
     /* compact zoom */
     #zoom-controls { gap: 4px; }
@@ -476,6 +476,10 @@ button:hover { background: rgba(255,255,255,0.18); }
     gap: 6px;
     padding: 0 16px;
     border-right: 1px solid rgba(255,255,255,0.08);
+
+    span#coords {
+        font-weight: bold;
+    }
 }
 .panel-section:last-child { border-right: none; }
 

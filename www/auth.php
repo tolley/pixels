@@ -39,18 +39,6 @@ function createVerifyToken(PDO $pdo, int $userId): string {
     return $token;
 }
 
-// function sendVerificationEmail(string $to, string $username, string $token): void {
-//     $appUrl = rtrim(getenv('APP_URL') ?: 'https://pixels.tolleycoder.com', '/');
-//     $url    = "$appUrl/auth?action=verify&token=$token";
-//     $body   = "Hi $username,\n\nVerify your email:\n\n$url\n\nExpires in 24 hours.";
-
-//     $headers  = "From: noreply@pixels.tolleycoder.com\r\n";
-//     $headers .= "MINE-VERSION: 1.0\r\n";
-//     $headers .= "Content-type: text/plain; charset=URF-8\r\n";
-
-//     mail($to, 'Verify your email address', $body, $headers );
-// }
-
 // ── actions ────────────────────────────────────────────────────────────────
 
 function doSignup(PDO $pdo): void {

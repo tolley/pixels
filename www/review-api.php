@@ -2,6 +2,7 @@
 header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'jwt.php';
+require_once 'PHPMailer/index.php';
 
 $authUser = jwtFromRequest();
 if (!$authUser || empty($authUser['is_admin'])) {
@@ -90,10 +91,7 @@ try {
         $userRow->execute([$batchId]);
         $recipient = $userRow->fetch();
 
-        // Tolley: Email owner of that batch to let them know of the update
-
-
-        if ($recipient) {
+        if( $recipient ) {
             sendPixelReviewEmail($recipient['email'], $recipient['username'], $newStatus);
         }
 

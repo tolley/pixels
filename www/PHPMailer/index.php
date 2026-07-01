@@ -50,18 +50,24 @@ function createEmailObject(): object {
  * @return bool True if the email was sent successfully, false otherwise
  */
 function sendVerificationEmail(string $to, string $username, string $token): bool {
+    $env = parse_ini_file( __DIR__ . '/../.env', false, INI_SCANNER_RAW );
+
     try {
         //Create an instance; passing `true` enables exceptions
         $mail = createEmailObject();
 
         $mail->addAddress( $to );
 
+        $appUrl = rtrim( $env['APP_URL'] ?: 'https://pixels.tolleycoder.com', '/');
+        $url    = "$appUrl/auth?action=verify&token=$token";
+
         //Content
         $mail->isHTML( true ); // Set email format to HTML
         $mail->Subject = 'Verify your email address';
         $mail->Body    = "<span>
                             <h1>Hi $username!</h1>
-                            <p>Please verify your email:<br /> $url </p>
+                            Please verify your email: <a href='$url'>$appUrl/auth</a>
+                            <br />
 
                             <span>Expires in 24 hours.</span>
                         </span>";
@@ -122,9 +128,8 @@ function sendPixelReviewEmail( string $to, string $username, string $status ): v
         // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
         $mail->send();
-    } catch() {}
-
-    $mail = createEmailObject();
-
+    } catch( Exception $e ) {
+        // Ignore this exception, for now....
+    }
 }
 

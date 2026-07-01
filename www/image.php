@@ -8,8 +8,8 @@ require_once 'db.php';
 
 $x1    = max(0, (int)($_GET['x1']    ?? 0));
 $y1    = max(0, (int)($_GET['y1']    ?? 0));
-$x2    = max($x1, (int)($_GET['x2'] ?? $x1 + 1024));
-$y2    = max($y1, (int)($_GET['y2'] ?? $y1 + 1024));
+$x2    = max($x1, (int)($_GET['x2'] ?? $x1 + 512));
+$y2    = max($y1, (int)($_GET['y2'] ?? $y1 + 512));
 $scale = max(1, min(16, (int)($_GET['scale'] ?? 4)));
 
 // Cap region to avoid generating huge images (max 2048 cells per axis)

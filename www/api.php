@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once 'db.php';
 require_once 'jwt.php';
+require_once( 'PHPMailer/index.php' );
 
 try {
     $pdo    = getDb();

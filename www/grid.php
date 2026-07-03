@@ -1,4 +1,5 @@
 <?php
+require_once( 'function.php' );
 require_once 'jwt.php';
 
 $user = jwtFromRequest();
@@ -16,25 +17,8 @@ else {
     $googleClientId = 0;
 }
 
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en" class="grid">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pixel Playground</title>
-    <link rel="stylesheet" href="css/app.css">
-    <script type="text/javascript" src="/js/grid.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184"
-     crossorigin="anonymous"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7254H2D132"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag( 'config', '<?= $googleClientId ?>' );
-    </script>
-</head>
 <body class="grid">
 
 <div id="toast"><?= $verified ? 'Email verified — welcome!' : '' ?></div>
@@ -121,5 +105,9 @@ else {
     </div>
 </div>
 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</body>
-</html>
+
+<?php
+$pageBody = ob_get_clean();
+$pageContent = renderPage( $pageBody, 'grid');
+
+echo $pageContent;

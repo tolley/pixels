@@ -1,21 +1,15 @@
 <?php
+require_once( 'functions.php' );
 require_once 'jwt.php';
 $user = jwtFromRequest();
 if (!$user || empty($user['is_admin'])) {
     header('Location: login');
     exit;
 }
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Review Queue — Pixel Playground</title>
-    <link rel="stylesheet" href="css/app.css">
-</head>
-<body class="review">
+// Title: Review Queue
 
+ob_start();
+?>
 <div id="review-header">
     <h1>Review Queue</h1>
     <nav class="review-nav">
@@ -125,5 +119,9 @@ function escHtml(s) {
 
 load();
 </script>
-</body>
-</html>
+<?php
+
+$pageBody = ob_get_clean();
+$pageContent = renderPage( $pageBody, 'auth' );
+
+echo $pageContent;

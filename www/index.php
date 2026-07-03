@@ -1,5 +1,7 @@
 <?php
+require_once 'functions.php';
 require_once 'jwt.php';
+
 if( jwtFromRequest() ) {
     header( 'Location: grid' );
     exit;
@@ -10,18 +12,8 @@ $hasGoogle = false;
 $hasApple = array_key_exists( 'APPLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['APPLE_CLIENT_ID'] ) > 0;
 $hasSocial = $hasGoogle || $hasApple;
 
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pixel Playground</title>
-    <link rel="stylesheet" href="css/app.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184"
-     crossorigin="anonymous"></script>
-</head>
-<body class="auth home">
 <div class="card">
     <div class="pixel-icon" aria-hidden="true">
         <?php
@@ -72,5 +64,9 @@ $hasSocial = $hasGoogle || $hasApple;
         <?php endif; ?>
     </div>
 </div>
-</body>
-</html>
+
+<?php
+$pageBody = ob_get_clean();
+$pageContent = renderPage( $pageBody, 'auth home' );
+
+echo $pageContent;

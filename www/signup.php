@@ -1,25 +1,18 @@
 <?php
+require_once( 'functions.php' );
 require_once 'jwt.php';
+
 if (jwtFromRequest()) {
     header('Location: grid');
     exit;
 }
-
 $hasGoogle = (bool)(getenv('GOOGLE_CLIENT_ID') && getenv('GOOGLE_CLIENT_SECRET'));
 $hasApple  = (bool)(getenv('APPLE_CLIENT_ID') && getenv('APPLE_TEAM_ID') && getenv('APPLE_KEY_ID') && getenv('APPLE_PRIVATE_KEY'));
 $hasSocial = $hasGoogle || $hasApple;
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign Up — Pixel Playground</title>
-    <link rel="stylesheet" href="css/app.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184"
-     crossorigin="anonymous"></script>
-</head>
-<body class="auth">
+
 <div class="card">
     <p class="card-title">Pixel Playground</p>
     <h1>Create Account</h1>
@@ -124,5 +117,10 @@ $hasSocial = $hasGoogle || $hasApple;
 
     document.getElementById('username').focus();
 </script>
-</body>
-</html>
+<?php
+
+$pageBody = ob_get_clean();
+$pageContent = renderPage( $pageBody, 'auth' );
+
+echo $pageContent;
+

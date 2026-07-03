@@ -53,6 +53,11 @@ body.home .card {
     margin-bottom: 6px;
 }
 
+.master-image {
+    width: 650px;
+    border: solid 1px #000;
+}
+
 /* headings — auth forms use smaller, homepage uses larger */
 body.auth h1 {
     font-size: 1.4rem;

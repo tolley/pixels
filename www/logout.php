@@ -1,5 +1,7 @@
 <?php
 require_once 'jwt.php';
+
 jwtClearCookie();
-header('Location: login.php');
+
+header('Location: login');
 exit;

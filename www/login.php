@@ -13,8 +13,9 @@ $errorMap = [
     'oauth_config'    => 'Social login is not configured.',
     'oauth_cancelled' => 'Login cancelled — please try again.',
     'oauth_state'     => 'Invalid login state — please try again.',
-    'oauth_failed'    => 'Social login failed — please use email instead.',
+    'oauth_failed'    => 'Social login failed — please use email instead.'
 ];
+
 $initError  = $errorMap[$_GET['error'] ?? ''] ?? '';
 $showResend = isset($_GET['error']) && in_array($_GET['error'], ['expired', 'invalid_token']);
 

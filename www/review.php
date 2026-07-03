@@ -122,6 +122,6 @@ load();
 <?php
 
 $pageBody = ob_get_clean();
-$pageContent = renderPage( $pageBody, 'auth' );
+$pageContent = renderPage( $pageBody, 'review' );
 
 echo $pageContent;

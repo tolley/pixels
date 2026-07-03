@@ -93,7 +93,7 @@ function doLogin(PDO $pdo): void {
     $email    = trim($body['email']    ?? '');
     $password =       $body['password'] ?? '';
 
-    if (!$email || !$password) {
+    if( ! $email || ! $password ) {
         http_response_code(400);
         echo json_encode(['error' => 'Email and password are required']);
         return;

@@ -1,21 +1,46 @@
 <?php
+
+function debug( $v ) {
+    echo '<pre>';
+    print_r( $v );
+    echo '</pre>';
+}
+
+function dine() {
+	$trace = debug_backtrace();
+	$level = array_shift( $trace );
+	die( 'died: ' . $level['file'] . ' ' . $level['line'] );
+}
+
+function mark() {
+    $trace = debug_backtrace();
+	$level = array_shift( $trace );
+	echo 'MARK: ' . $level['file'] . ' ' . $level['line'];
+}
+
 function getDb(): PDO {
     $env = parse_ini_file( '.env', false, INI_SCANNER_RAW );
 
     $host   = $env['MYSQL_HOST'] ?: 'db';
     $dbname = $env['MYSQL_DATABASE'] ?: 'appdb';
-    $user   = $env['MYSQL_USER']     ?: 'appuser';
+    $user   = $env['MYSQL_USER']     ?: 'tolley'; // 'appuser';
     $pass   = $env['MYSQL_PASSWORD'] ?: 'secret';
     $port   = $env['MYSQL_PORT']     ?: '3306';
 
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8;port=$port",
-        $user, $pass,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]
-    );
+    try {
+        $pdo = new PDO(
+            "mysql:host=$host;dbname=$dbname;charset=utf8;port=$port",
+            $user, $pass,
+            [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]
+        );
+    } catch( Exception $e ) {
+        echo 'Could not connect to the DB!';
+        echo '<pre>'; print_r( $e ); echo '</pre>';
+        die();
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id             INT UNSIGNED  NOT NULL AUTO_INCREMENT,

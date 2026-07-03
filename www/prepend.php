@@ -20,3 +20,12 @@ function here()
 	$level = array_shift( $trace );
 	debug( 'Here: ' . $level['file'] . ': ' . $level['line'] );
 }
+
+
+// Prints out the line number and dies 
+function dine()
+{
+	$trace = debug_backtrace();
+	$level = array_shift( $trace );
+	die( 'died: ' . $level['file'] . ': ' . $level['line'] );
+}

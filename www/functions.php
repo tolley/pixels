@@ -24,7 +24,7 @@ function renderPage( string $body, string $cssBodyClass ): string {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag( 'config', '<?= $googleClientId ?>' );
+            gtag( 'config', '<?= @$googleClientId ?>' );
         </script>
     </head>
     <body class="<?= $cssBodyClass ?>">

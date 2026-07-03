@@ -1,5 +1,5 @@
 <?php
-require_once( 'function.php' );
+require_once( 'functions.php' );
 require_once 'jwt.php';
 
 $user = jwtFromRequest();
@@ -9,18 +9,13 @@ if (!$user) {
 }
 $verified = isset($_GET['verified']);
 
-$env = getEnv();
-if( array_key_exists( 'GOOGLE_CLIENT_ID', $env ) && strlen( $env['GOOGLE_CLIENT_ID'] ) ) {
-    $googleClientId = $env['GOOGLE_CLIENT_ID'];
-}
-else {
-    $googleClientId = 0;
-}
+$hasGoogle = array_key_exists( 'GOOGLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['GOOGLE_CLIENT_ID'] ) > 0;
+$hasGoogle = false;
+$hasApple = array_key_exists( 'APPLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['APPLE_CLIENT_ID'] ) > 0;
+$hasSocial = $hasGoogle || $hasApple;
 
 ob_start();
 ?>
-<body class="grid">
-
 <div id="toast"><?= $verified ? 'Email verified — welcome!' : '' ?></div>
 
 <div id="toolbar">
@@ -104,7 +99,7 @@ ob_start();
         </div>
     </div>
 </div>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+<script type="text/javascript" src="js/grid.js"></script>
 
 <?php
 $pageBody = ob_get_clean();

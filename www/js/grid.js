@@ -87,7 +87,9 @@ window.addEventListener( 'load', () => {
 
     eraserBtn.addEventListener('click', () => {
         selectedColor = ERASE;
-        if (selectedSwatch) selectedSwatch.classList.remove('selected');
+        if( selectedSwatch )
+            selectedSwatch.classList.remove( 'selected' );
+
         selectedSwatch = null;
         eraserBtn.classList.add('selected');
         gtag('event', 'tool_select', { tool: 'eraser' });
@@ -119,15 +121,15 @@ window.addEventListener( 'load', () => {
         // mark unsaved pixels with a small white dot
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
         const dot = Math.max(2, Math.floor(cellPx / 4));
-        for (const key of Object.keys(pending)) {
-            const [px, py] = key.split(',');
+        for( const key of Object.keys( pending ) ) {
+            const [px, py] = key.split( ',' );
             const sc = px - viewX, sr = py - viewY;
-            if (sc >= 0 && sc < vpCols && sr >= 0 && sr < vpRows) {
+            if( sc >= 0 && sc < vpCols && sr >= 0 && sr < vpRows ) {
                 ctx.fillRect(sc * step, sr * step, dot, dot);
             }
         }
 
-        if (hoverC >= 0 && hoverR >= 0) {
+        if( hoverC >= 0 && hoverR >= 0 ) {
             ctx.fillStyle = selectedColor === ERASE ? DEFAULT_COLOR : selectedColor;
             ctx.fillRect(hoverC * step, hoverR * step, cellPx, cellPx);
         }
@@ -247,8 +249,8 @@ window.addEventListener( 'load', () => {
     function navigate(dx, dy) {
         // Tolley
         // Need to keep the pixels in range, 0 to 1024 x and y I believe
-        viewX = clamp(viewX + dx, 0, Math.max(0, COLS - vpCols));
-        viewY = clamp(viewY + dy, 0, Math.max(0, ROWS - vpRows));
+        viewX = clamp( viewX + dx, 0, Math.max( 0, COLS - vpCols ) );
+        viewY = clamp( viewY + dy, 0, Math.max( 0, ROWS - vpRows ) );
 
         // If viewX or viewY are out of range, put the visible space
         // back into range
@@ -261,8 +263,6 @@ window.addEventListener( 'load', () => {
             let diff = viewY - MAX_VP;
             viewY = viewY - diff;
         }
-
-        console.log( 'navigate: viewX = ' + viewX, 'yiewY = ' + viewY );
 
         coordsEl.textContent = `x: ${viewX.toLocaleString()}  y: ${viewY.toLocaleString()}`;
         render();

@@ -2,7 +2,7 @@
 /**
  * Returns the raw image from the pixel table based on the coordinates
  * pass in via query string
- * ex: GET /image-api?x1=0&y1=0&x2=199&y2=199[&scale=12
+ * ex: GET /image-api?x1=0&y1=0&x2=199&y2=199[&scale=12]
  */
 
 require_once 'db.php';
@@ -14,8 +14,8 @@ $y2    = max($y1, (int)($_GET['y2'] ?? $y1 + 512));
 $scale = max(1, min(16, (int)($_GET['scale'] ?? 4)));
 
 // Cap region to avoid generating huge images (max 2048 cells per axis)
-$x2 = min($x2, $x1 + 200);
-$y2 = min($y2, $y1 + 200);
+$x2 = min($x2, $x1 + 198);
+$y2 = min($y2, $y1 + 198);
 
 $cellsW = $x2 - $x1 + 1;
 $cellsH = $y2 - $y1 + 1;

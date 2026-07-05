@@ -7,7 +7,7 @@ ob_start();
     <p class="card-title">Pixel Playground</p>
     <h1>Current Image</h1>
 
-    <div style="background-color: #FFF;">
+    <div style="background-color: #FFF; width: 595px;">
         <img src="/image-api" height="600" width="600" />
     </div>
 

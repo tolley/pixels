@@ -22,8 +22,6 @@ function createEmailObject(): object {
     $appUrl        = $env['APP_URL'];
     $appEmail      = $env['APP_EMAIL'];
 
-    $url    = "$appUrl/auth.php?action=verify&token=$token";
-
     //Create an instance; passing `true` enables exceptions
     $mail = new PHPMailer(true);
     $mail->isSMTP();                                 // Send using SMTP
@@ -125,7 +123,7 @@ function sendPixelReviewEmail( string $to, string $username, string $status ): v
         $mail->isHTML( true ); // Set email format to HTML
         $mail->Subject = $subject;
         $mail->Body    = $body;
-        // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+        $mail->AltBody = 'Thank you for contributing!  You can see it at http://pixels.tolleycoder.com/image';
 
         $mail->send();
     } catch( Exception $e ) {

@@ -1,9 +1,9 @@
 <?php
 require_once( 'functions.php' );
-require_once 'jwt.php';
+require_once( 'jwt.php' );
 
 $user = jwtFromRequest();
-if (!$user) {
+if( ! $user ) {
     header('Location: login');
     exit;
 }
@@ -21,7 +21,7 @@ ob_start();
 <div id="toolbar">
     <h1>Pixels</h1>
 
-    <div id="active-color-wrap" title="Custom colour">
+    <div id="active-color-wrap" title="Select a color">
         <div id="active-color"></div>
         <input type="color" id="color-picker">
     </div>
@@ -29,17 +29,20 @@ ob_start();
     <button type="button" id="btn-eraser" title="Erase pixel (remove colour)">✕</button>
 
     <div class="toolbar-actions">
-        <button type="button" id="btn-submit" disabled>Submit</button>
-        <button type="button" id="btn-reset" disabled>Reset</button>
+        <button type="button" id="btn-submit" title="Submit pixels for review for inclusion" disabled>Submit</button>
+        <button type="button" id="btn-reset" title="Clear non submitted pixels" disabled>Reset</button>
     </div>
 
     <div id="user-info">
         <span><?= htmlspecialchars($user['username']) ?></span>
-        <a href="/image" alt="See the GIF version of this grid." target="_blank">GIF</a>
+        <a href="#" id="toggle-email-allowed" title="Enable/Disable emails">@</a>
+        <a href="/image" title="See the GIF version of this grid." target="_blank">GIF</a>
+
         <?php if (!empty($user['is_admin'])): ?>
-        <a href="review">Review</a>
+            <a href="review" title="Review Submissions">Review</a>
         <?php endif; ?>
-        <a href="logout">Logout</a>
+        
+        <a href="logout" title="Logout">Logout</a>
     </div>
 </div>
 
@@ -89,6 +92,8 @@ ob_start();
             <span class="panel-value" id="vp-display">— × —</span>
         </div>
 
+        <?php
+        /*
         <div id="ad-slot">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -97,6 +102,8 @@ ob_start();
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
         </div>
+        */
+        ?>
     </div>
 </div>
 <script type="text/javascript" src="js/grid.js"></script>

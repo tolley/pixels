@@ -34,13 +34,23 @@ window.addEventListener( 'load', () => {
     const vpDisplay    = document.getElementById('vp-display');
     const stepSelect   = document.getElementById('step-select');
     const zoomDisplay  = document.getElementById('zoom-display');
+    const emailAllowed = document.getElementById('toggle-email-allowed');
     let selectedSwatch = null;
     let hoverC = -1, hoverR = -1;
     let rafPending = false;
 
+    emailAllowed.addEventListener("click", function() {
+        fetch( '/toggle-email-allowed' ).then( async ( resp ) => {
+            const emailAvail = await resp.text();
+            if( emailAvail == 0 )
+                emailAllowed.style.color = '#F22';
+            else {
+                emailAllowed.style.color = '#2F2';
+            }
+        });
+    });
 
     function recalc() {
-        // Tolley
         vpCols = Math.max(1, Math.floor(canvas.width  / step));
         vpRows = Math.max(1, Math.floor(canvas.height / step));
         viewX  = clamp(viewX, 0, Math.max(0, COLS - vpCols));
@@ -159,7 +169,7 @@ window.addEventListener( 'load', () => {
         const x1 = viewX, y1 = viewY;
         const x2 = viewX + vpCols - 1, y2 = viewY + vpRows - 1;
 
-        console.log( 'fetViewport: x1 = ', x1, 'x2 = ', x2, 'y1 = ', y1, 'y2 = ' , y2);
+        // console.log( 'fetViewport: x1 = ', x1, 'x2 = ', x2, 'y1 = ', y1, 'y2 = ' , y2);
         
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
@@ -247,8 +257,6 @@ window.addEventListener( 'load', () => {
     function getStep() { return parseInt(stepSelect.value, 10); }
 
     function navigate(dx, dy) {
-        // Tolley
-        // Need to keep the pixels in range, 0 to 1024 x and y I believe
         viewX = clamp( viewX + dx, 0, Math.max( 0, COLS - vpCols ) );
         viewY = clamp( viewY + dy, 0, Math.max( 0, ROWS - vpRows ) );
 

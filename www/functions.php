@@ -1,5 +1,7 @@
 <?php
 
+require_once( 'db.php' );
+
 /**
  * renderPage
  * @param string body: The main body (html) for the page
@@ -16,8 +18,11 @@ function renderPage( string $body, string $cssBodyClass ): string {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Pixel Playground</title>
         <link rel="stylesheet" href="css/app.css">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184"
-        crossorigin="anonymous"></script>
+
+        <?php
+        // <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8390628961139184" 
+        // crossorigin="anonymous"></script>
+        // ?>
 
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-7254H2D132"></script>
         <script>
@@ -36,3 +41,26 @@ function renderPage( string $body, string $cssBodyClass ): string {
     $pageContent = ob_get_clean();
     return $pageContent;
 }
+
+/**
+ * Returns true if username has email allowed (if we can email them)
+ * 
+ * @param string    username: the username of the user
+ * @return bool Returns the value of user.email_allowed
+ */
+function isEmailAllowed( $userData ): bool {
+    if( ! array_key_exists( 'username', $userData ) || empty( $userData['username'] ) )
+        return false;
+
+    $pdo = getDb();
+
+    $stmt = $pdo->prepare( 'SELECT email_allowed FROM users WHERE username = ?' );
+    $stmt->execute( [$userData['username']] );
+    $result = $stmt->fetch();
+
+    if( ! $result )
+        return false;
+    else
+        return (bool)$result['email_allowed'];
+}
+

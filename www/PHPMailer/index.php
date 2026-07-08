@@ -3,6 +3,7 @@
 require_once 'Exception.php';
 require_once 'PHPMailer.php';
 require_once 'SMTP.php';
+require_once 'db.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -87,7 +88,7 @@ function sendVerificationEmail(string $to, string $username, string $token): boo
  */
 function sendPixelReviewEmail( string $to, string $username, string $status ): void {
     $appUrl   = rtrim(getenv('APP_URL') ?: 'https://pixels.tolleycoder.com', '/');
-    $imageUrl = $appUrl . '/image.php';
+    $imageUrl = $appUrl . '/image';
     $approved = $status === 'approved';
     $subject  = $approved ? 'Your pixels have been approved!' : 'Your pixels were not approved';
 

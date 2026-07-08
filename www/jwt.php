@@ -40,14 +40,15 @@ function jwtFromRequest(): ?array {
     return jwtDecode($token);
 }
 
-function jwtSetCookie(int $userId, string $username, bool $isAdmin = false): void {
+function jwtSetCookie(int $userId, string $username, bool $isAdmin = false, bool $emailAllowed = true ): void {
     $exp = time() + 86400 * 7;
     setcookie('jwt', jwtEncode([
-        'sub'      => $userId,
-        'username' => $username,
-        'is_admin' => $isAdmin,
-        'iat'      => time(),
-        'exp'      => $exp,
+        'sub'           => $userId,
+        'username'      => $username,
+        'email_allowed' => $emailAllowed,
+        'is_admin'      => $isAdmin,
+        'iat'           => time(),
+        'exp'           => $exp,
     ]), [
         'expires'  => $exp,
         'path'     => '/',

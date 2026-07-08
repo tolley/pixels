@@ -48,6 +48,7 @@ function getDb(): PDO {
         email          VARCHAR(255)  NOT NULL,
         password       VARCHAR(255)  NULL,
         email_verified TINYINT(1)    NOT NULL DEFAULT 0,
+        email_allowed  TINYINT(1)    NOT NULL DEFAULT 1,
         oauth_provider VARCHAR(32)   NULL,
         oauth_subject  VARCHAR(255)  NULL,
         created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,

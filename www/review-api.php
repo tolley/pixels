@@ -1,7 +1,9 @@
 <?php
 header('Content-Type: application/json');
+
 require_once 'db.php';
 require_once 'jwt.php';
+require_once 'functions.php';
 require_once 'PHPMailer/index.php';
 
 $authUser = jwtFromRequest();
@@ -91,7 +93,7 @@ try {
         $userRow->execute([$batchId]);
         $recipient = $userRow->fetch();
 
-        if( $recipient ) {
+        if( $recipient && isEmailAllowed( $recipient ) ) {
             sendPixelReviewEmail($recipient['email'], $recipient['username'], $newStatus);
         }
 

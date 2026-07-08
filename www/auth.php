@@ -99,7 +99,7 @@ function doLogin(PDO $pdo): void {
         return;
     }
 
-    $stmt = $pdo->prepare('SELECT id, username, password, email_verified, is_admin FROM users WHERE email = ?');
+    $stmt = $pdo->prepare('SELECT id, username, password, email_verified, is_admin, email_allowed FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -114,7 +114,7 @@ function doLogin(PDO $pdo): void {
         return;
     }
 
-    jwtSetCookie((int)$user['id'], $user['username'], (bool)$user['is_admin']);
+    jwtSetCookie((int)$user['id'], $user['username'], (bool)$user['is_admin'], (bool)$user['email_allowed'] );
     echo json_encode(['ok' => true]);
 }
 
@@ -153,7 +153,9 @@ function doResend(PDO $pdo): void {
 function doMe(): void {
     $user = jwtFromRequest();
     echo json_encode($user
-        ? ['loggedIn' => true, 'username' => $user['username']]
+        ? ['loggedIn' => true, 
+            'username' => $user['username'],
+            'email_allowed' => $user['email_allowed']]
         : ['loggedIn' => false]);
 }
 

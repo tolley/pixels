@@ -49,8 +49,11 @@ function renderPage( string $body, string $cssBodyClass ): string {
  * @return bool Returns the value of user.email_allowed
  */
 function isEmailAllowed( $userData ): bool {
-    if( ! array_key_exists( 'username', $userData ) || empty( $userData['username'] ) )
-        return false;
+    if( ! is_array( $userData)  || 
+        ! array_key_exists( 'username', $userData ) || 
+        empty( $userData['username'] ) ) {
+            return false;
+    }
 
     $pdo = getDb();
 

@@ -48,22 +48,21 @@ function renderPage( string $body, string $cssBodyClass ): string {
  * @param string    username: the username of the user
  * @return bool Returns the value of user.email_allowed
  */
-function isEmailAllowed( $userData ): bool {
-    if( ! is_array( $userData)  || 
-        ! array_key_exists( 'username', $userData ) || 
-        empty( $userData['username'] ) ) {
-            return false;
+function isEmailAllowed( string $username ): int {
+    if( !$username || empty( $username ) ) {
+        return 0;
     }
-
+    
     $pdo = getDb();
 
-    $stmt = $pdo->prepare( 'SELECT email_allowed FROM users WHERE username = ?' );
-    $stmt->execute( [$userData['username']] );
-    $result = $stmt->fetch();
+    $sql = 'SELECT email_allowed
+            FROM users
+            WHERE username = ?';
 
-    if( ! $result )
-        return false;
-    else
-        return (bool)$result['email_allowed'];
+    $stmt = $pdo->prepare( $sql );
+    $stmt->execute( [$username] );
+    $results = $stmt->fetch();
+
+    return $results['email_allowed'];
 }
 

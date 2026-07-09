@@ -42,13 +42,28 @@ window.addEventListener( 'load', () => {
     emailAllowed.addEventListener("click", function() {
         fetch( '/toggle-email-allowed' ).then( async ( resp ) => {
             const emailAvail = await resp.text();
-            if( emailAvail == 0 )
-                emailAllowed.style.color = '#F22';
-            else {
-                emailAllowed.style.color = '#2F2';
+
+            if( emailAvail == 0 ) {
+                emailAllowed.classList.remove( 'allowed' );
+                emailAllowed.title = "Emails are disabled, click to enable.";
+            } else {
+                emailAllowed.classList.add( 'allowed' );
+                emailAllowed.title = "Emails are enabled, click to disable.";
             }
         });
-    });
+    } );
+
+    setTimeout( () => {
+        fetch( '/emails_allowed' )
+        .then( async ( resp ) => {
+                const emailAvail = await resp.text();
+
+                // The CSS defaults it to disallowed, so only need to enable it
+                emailAllowed.classList.add( 'allowed' );
+                emailAllowed.title = "Emails are enabled, click to disable.";
+            }
+        );
+    }, 10 )
 
     function recalc() {
         vpCols = Math.max(1, Math.floor(canvas.width  / step));
@@ -164,12 +179,9 @@ window.addEventListener( 'load', () => {
     async function fetchViewport() {
         gridLoadingEl.classList.add('show');
 
-        // Tolley
         // Keep the pixels in range
         const x1 = viewX, y1 = viewY;
         const x2 = viewX + vpCols - 1, y2 = viewY + vpRows - 1;
-
-        // console.log( 'fetViewport: x1 = ', x1, 'x2 = ', x2, 'y1 = ', y1, 'y2 = ' , y2);
         
         try {
             const res  = await fetch(`api.php?x1=${x1}&y1=${y1}&x2=${x2}&y2=${y2}`);
@@ -360,4 +372,7 @@ window.addEventListener( 'load', () => {
         showToast(toastEl.textContent);
         history.replaceState(null, '', location.pathname);
     }
+
+    // Set the email allowed status in the UI
+    // Tolley
 } );

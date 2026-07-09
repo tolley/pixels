@@ -770,5 +770,8 @@ body.review {
 }
 
 a#toggle-email-allowed {
-    color: #3F3;
+    &.allowed {
+        color: #2F2;
+    }
+    color: #f22;
 }

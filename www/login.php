@@ -6,9 +6,6 @@ if( jwtFromRequest() ) {
     exit;
 }
 
-$userEmail = 'chris.tolley@gmail.com';
-isEmailAllowed( $userEmail );
-
 $errorMap = [
     'expired'         => 'Verification link has expired — request a new one below.',
     'invalid_token'   => 'Invalid verification link.',

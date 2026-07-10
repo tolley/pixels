@@ -6,6 +6,8 @@ if( jwtFromRequest() ) {
     exit;
 }
 
+$env = parse_ini_file( '.env', false, INI_SCANNER_RAW );
+
 $errorMap = [
     'expired'         => 'Verification link has expired — request a new one below.',
     'invalid_token'   => 'Invalid verification link.',
@@ -19,8 +21,8 @@ $errorMap = [
 $initError  = $errorMap[$_GET['error'] ?? ''] ?? '';
 $showResend = isset($_GET['error']) && in_array($_GET['error'], ['expired', 'invalid_token']);
 
-$hasGoogle = array_key_exists( 'GOOGLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['GOOGLE_CLIENT_ID'] ) > 0;
-$hasApple = array_key_exists( 'APPLE_CLIENT_ID', $_ENV ) && strlen( $_ENV['APPLE_CLIENT_ID'] ) > 0;
+$hasGoogle = array_key_exists( 'GOOGLE_CLIENT_ID', $env ) && strlen( $env['GOOGLE_CLIENT_ID'] ) > 0;
+$hasApple = array_key_exists( 'APPLE_CLIENT_ID', $env ) && strlen( $env['APPLE_CLIENT_ID'] ) > 0;
 $hasSocial = $hasGoogle || $hasApple;
 
 ob_start();

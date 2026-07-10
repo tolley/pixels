@@ -93,7 +93,7 @@ try {
         $userRow->execute([$batchId]);
         $recipient = $userRow->fetch();
 
-        if( $recipient && isEmailAllowed( $recipient ) ) {
+        if( $recipient && isEmailAllowed( $recipient['username'] ) ) {
             sendPixelReviewEmail($recipient['email'], $recipient['username'], $newStatus);
         }
 

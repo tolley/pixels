@@ -56,11 +56,13 @@ window.addEventListener( 'load', () => {
     setTimeout( () => {
         fetch( '/emails_allowed' )
         .then( async ( resp ) => {
-                const emailAvail = await resp.text();
+                const emailAvail = parseInt( await resp.text() );
 
-                // The CSS defaults it to disallowed, so only need to enable it
-                emailAllowed.classList.add( 'allowed' );
-                emailAllowed.title = "Emails are enabled, click to disable.";
+                if( emailAvail ) {
+                    // The CSS defaults it to disallowed, so need to enable it
+                    emailAllowed.classList.add( 'allowed' );
+                    emailAllowed.title = "Emails are enabled, click to disable.";
+                }
             }
         );
     }, 10 )

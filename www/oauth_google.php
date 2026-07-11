@@ -1,9 +1,12 @@
 <?php
 require_once __DIR__ . '/oauth.php';
+// require_once __DIR__ . '/PHPMailer/index.php';
 
-$clientId    = getenv('GOOGLE_CLIENT_ID')     ?: '';
-$clientSecret = getenv('GOOGLE_CLIENT_SECRET') ?: '';
-$appUrl      = rtrim(getenv('APP_URL') ?: 'http://localhost:8080', '/');
+$env = parse_ini_file( '.env', false, INI_SCANNER_RAW );
+
+$clientId    = $env['GOOGLE_CLIENT_ID']     ?: '';
+$clientSecret = $env['GOOGLE_CLIENT_SECRET'] ?: '';
+$appUrl      = rtrim($env['APP_URL'] ?: 'http://pixels.tolleycoder.com', '/');
 $redirectUri = $appUrl . '/oauth_google.php?action=callback';
 
 // echo '"' . $redirectUri . '"';
@@ -37,6 +40,7 @@ if ($_GET['error'] ?? null) {
 
 $code  = $_GET['code']  ?? '';
 $state = $_GET['state'] ?? '';
+
 if (!$code || !$state || !oauthVerifyState($state, 'google')) {
     header('Location: /login?error=oauth_state');
     exit;
@@ -57,6 +61,7 @@ if (!$idToken) {
 }
 
 $claims = oauthDecodeIdToken($idToken);
+
 if (!$claims || empty($claims['sub']) || empty($claims['email'])) {
     header('Location: /login?error=oauth_failed');
     exit;
@@ -64,11 +69,13 @@ if (!$claims || empty($claims['sub']) || empty($claims['email'])) {
 
 $pdo  = getDb();
 $user = oauthFindOrCreateUser($pdo, 'google', $claims['sub'], $claims['email'], $claims['name'] ?? '');
+
 if (!$user) {
     header('Location: /login?error=oauth_failed');
     exit;
 }
 
 jwtSetCookie($user['id'], $user['username'], (bool)($user['is_admin'] ?? false));
-header('Location: /grid');
+
+header('Location: /loginlanding');
 exit;

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt.php';
+// require_once __DIR__ . '/PHPMailer/index.php';
 
 // --- State (CSRF protection, stateless HMAC approach) ---
 
@@ -63,6 +64,7 @@ function oauthFindOrCreateUser(PDO $pdo, string $provider, string $subject, stri
     $stmt = $pdo->prepare('SELECT id, username, is_admin FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
+
     if ($user) {
         $pdo->prepare('UPDATE users SET oauth_provider=?, oauth_subject=?, email_verified=1 WHERE id=?')
             ->execute([$provider, $subject, $user['id']]);

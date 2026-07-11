@@ -132,3 +132,21 @@ function sendPixelReviewEmail( string $to, string $username, string $status ): v
     }
 }
 
+/**
+ * Sends a debug email to me
+ * 
+ * @param   string  body The body of the email
+ * @return null
+ */
+function dmail( string $body ): void {
+    $mail = createEmailObject();
+
+    $mail->addAddress( 'chris.tolley@gmail.com' );
+
+    $mail->isHTML( true ); // Set email format to HTML
+    $mail->Subject = 'debug email ' . microtime();
+    $mail->Body    = $body;
+
+    $mail->send();
+}
+

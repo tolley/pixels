@@ -36,7 +36,7 @@ ob_start();
     <div id="user-info">
         <span><?= htmlspecialchars($user['username']) ?></span>
         <a id="toggle-email-allowed" title="Enable/Disable emails">@</a>
-        <a href="/image" title="See the GIF version of this grid." target="_blank">GIF</a>
+        <a href="/image?x1=0&y1=0&x2=300&y2=300&scale=2" title="See the GIF version of this grid." target="_blank">GIF</a>
 
         <?php if (!empty($user['is_admin'])): ?>
             <a href="review" title="Review Submissions">Review</a>

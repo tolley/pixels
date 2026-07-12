@@ -1,11 +1,14 @@
 <?php
 
 require_once( 'functions.php' );
+require_once( 'jwt.php' );
+
+$user = jwtFromRequest();
 
 $x1 = ( array_key_exists( 'x1', $_GET ) )? (int)$_GET['x1']: 0;
-$x2 = ( array_key_exists( 'x2', $_GET ) )? (int)$_GET['x2']: 500;
+$x2 = ( array_key_exists( 'x2', $_GET ) )? (int)$_GET['x2']: 300;
 $y1 = ( array_key_exists( 'y1', $_GET ) )? (int)$_GET['y1']: 0;
-$y2 = ( array_key_exists( 'y2', $_GET ) )? (int)$_GET['y2']: 500;
+$y2 = ( array_key_exists( 'y2', $_GET ) )? (int)$_GET['y2']: 300;
 $scale = ( array_key_exists( 'scale', $_GET ) )? (int)$_GET['scale']: 4;
 
 $imgUrl = "/image-api?x1=$x1&x2=$x2&y1=$y1&y2=$y2&scale=$scale";
@@ -20,6 +23,15 @@ ob_start();
 <div class="card master-image">
     <p class="card-title">Pixel Playground</p>
     <h1>Current Image</h1>
+
+    <?php
+    if( ! $user ) {
+        echo 'Create a <a href="/signup">free account</a> and start creating some pixel art of your own!<br />';
+        echo 'Already have an account, login and get to work before all the good pixels are placed!<br />';
+    } else {
+        echo 'Return to <a href="/grid" class="header_link>the grid</a>';
+    }
+    ?>
 
     <div id="image_wrapper">
         <div id="image_background" style="height: <?= $imgH ?>px; width: <?= $imgW?>px;">

@@ -34,7 +34,7 @@ ob_start();
 
     <p class="site-label">Welcome to</p>
     <h1>Pixel Playground</h1>
-    <p class="tagline">Draw, share, and explore pixel art<br>with a community of creators.</p>
+    <p class="tagline">Express your creativity on a living wall built by everyone. Place pixels, collaborate on massive artworks, and watch the community shape the canvas in real time.</p>
 
     <div class="actions">
         <a href="signup" class="btn-primary">Get started — it's free</a>

@@ -56,6 +56,10 @@ body.home .card {
 .master-image {
     width: 650px;
     border: solid 1px #000;
+
+    a.header_link {
+        color: #0F0;
+    }
 }
 
 /* headings — auth forms use smaller, homepage uses larger */

@@ -783,5 +783,6 @@ div#image_wrapper {
 
     div#image_background {
         background-color: #FFF;
+        background-repeat: no-repeat;
     }
 }

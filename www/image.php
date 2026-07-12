@@ -1,5 +1,14 @@
 <?php
+
 require_once( 'functions.php' );
+
+$x1 = ( array_key_exists( 'x1', $_GET ) )? (int)$_GET['x1']: 0;
+$x2 = ( array_key_exists( 'x2', $_GET ) )? (int)$_GET['x2']: 500;
+$y1 = ( array_key_exists( 'y1', $_GET ) )? (int)$_GET['y1']: 0;
+$y2 = ( array_key_exists( 'y2', $_GET ) )? (int)$_GET['y2']: 500;
+$scale = ( array_key_exists( 'scale', $_GET ) )? (int)$_GET['scale']: 4;
+
+$imgUrl = "/image-api?x1=$x1&x2=$x2&y1=$y1&y2=$y2&scale=$scale";
 
 ob_start();
 ?>
@@ -7,8 +16,14 @@ ob_start();
     <p class="card-title">Pixel Playground</p>
     <h1>Current Image</h1>
 
-    <div style="background-color: #FFF; width: 595px;">
-        <img src="/image-api" height="600" width="600" />
+    <div id="image_wrapper">
+        <div id="image_background" style="height: <?= $x2 ?>px;
+                                        width: <?= $y2 ?>px;">
+            <div id="image" style="background-image: url( '<?= $imgUrl ?>' );
+                                    height: <?= $x2 ?>px;
+                                    width: <?= $y2 ?>px;">
+            </div>
+        </div>
     </div>
 
     <div id="msg" class="msg" style="display:none"></div>

@@ -775,3 +775,13 @@ a#toggle-email-allowed {
     }
     color: #f22;
 }
+
+div#image_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    div#image_background {
+        background-color: #FFF;
+    }
+}

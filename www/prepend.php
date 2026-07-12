@@ -1,9 +1,18 @@
 <?php
 
-function debug( $var ) {
-    echo '<pre>';
-    print_r( $var );
-    echo '</pre>';
+function debug() {
+	$args = func_get_args();
+
+	echo '<pre>'; print_r( $args ); echo '</pre>';
+
+	$trace = debug_backtrace();
+	$level = array_shift( $trace );
+
+	foreach( $args as $name => $value ) {
+		echo '<pre title="debug() called at ' . $level['file'] . ':' . $level['line'] . '">';
+		print_r( $value );
+		echo '</pre>';
+	}
 }
 
 function dd( $var ) {

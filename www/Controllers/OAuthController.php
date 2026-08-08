@@ -55,6 +55,8 @@ class OAuthController {
 
     public function logout( Request $req, Response $resp, array $args ): Response {  
         \pixels\functions\jwtClearCookie();
-        return $resp;
+
+        return $resp->withStatus( 302 )
+            ->withHeader( 'Location', '/' );
     }
 }

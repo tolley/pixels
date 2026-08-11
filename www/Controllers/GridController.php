@@ -24,11 +24,10 @@ class gridController {
         $userInfo = \pixels\functions\getUserInfo( $pdo, $userData['username'] );
 
         $viewData = [
-                'cssBodyClass' => 'grid',
-                'bodyTemplate' => 'grid.php',
-                'user' => $userInfo,
-                'bodyData' => [
-            ]
+            'cssBodyClass' => 'grid',
+            'bodyTemplate' => 'grid.php',
+            'user' => $userInfo,
+            'bodyData' => []
         ];
 
         return $renderer->render( $resp, 'grid.php', $viewData );

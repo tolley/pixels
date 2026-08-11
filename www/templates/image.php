@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="/css/app.css" media="screen, projection">
 
-<div class="card master-image">
+<div class="card master-image" style="border: solid 1px #F00; width: 100%;">
     <p class="card-title">Pixel Playground</p>
     <h1>Current Image</h1>
 

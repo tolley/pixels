@@ -18,7 +18,7 @@
     <div id="user-info">
         <span><?= htmlspecialchars( $user['username'] ) ?></span>
         <a id="toggle-email-allowed" title="Enable/Disable emails">@</a>
-        <a href="/image?x1=0&y1=0&x2=16&y2=16&scale=2" title="See the GIF version of this grid." target="_blank">GIF</a>
+        <a href="/image?x1=1&y1=1&x2=400&y2=400&scale=2" title="See the GIF version of this grid." target="_blank">GIF</a>
 
         <?php if( !empty( $user['is_admin'] ) ): ?>
             <a href="review" title="Review Submissions">Review</a>
@@ -73,19 +73,14 @@
             <span class="panel-label">Visible cells</span>
             <span class="panel-value" id="vp-display">— × —</span>
         </div>
-
-        <?php
-        /*
         <div id="ad-slot">
             <ins class="adsbygoogle"
-                 style="display:block"
+                 style="display: block;"
                  data-ad-client="ca-pub-483307165"
                  data-ad-slot="auto"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
         </div>
-        */
-        ?>
     </div>
 </div>
 <script type="text/javascript" src="/js/grid.js"></script>

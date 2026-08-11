@@ -54,7 +54,7 @@ body.home .card {
 }
 
 .master-image {
-    width: 650px;
+    width: 100%;
     border: solid 1px #000;
 
     a.header_link {

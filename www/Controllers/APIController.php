@@ -136,15 +136,15 @@ class APIController {
         $viewData = [
             'cssBodyClass' => 'grid',
             'bodyTemplate' => 'image.php',
-            'user' => $authUser,
-            'imgUrl' => $imgUrl,
-            'user'   => $authUser,
-            'imgW' => $imgW,
-            'imgH' => $imgH
+            'bodyData' => [
+                'user' => $authUser,
+                'imgUrl' => $imgUrl,
+                'user'   => $authUser,
+                'imgW' => $imgW,
+                'imgH' => $imgH
+            ]
         ];
 
-        return $renderer->render( $resp, 'image.php', $viewData );
-
-        return $resp;
+        return $renderer->render( $resp, 'main.php', $viewData );
     }
 }// End APIController
